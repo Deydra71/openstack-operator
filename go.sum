@@ -3,6 +3,8 @@ cloud.google.com/go v0.34.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMT
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/Deydra71/lib-common/modules/common v0.0.0-20231208095031-62070e5707ac h1:hbxqV3SSJkEtZOHfbWsz5gYIax7ABdg4ub8iAMbKb2Q=
 github.com/Deydra71/lib-common/modules/common v0.0.0-20231208095031-62070e5707ac/go.mod h1:9n2nMFDiV5hGZHKr81aTAOHUoAxvEKivHeWCXFRJEZ4=
+github.com/Deydra71/placement-operator/api v0.0.0-20231212134517-33ddbc5ba927 h1:yv5+Y46cUJ8hgXN6yu7Tsk8U+FptPt5WbWgdYDsxLYY=
+github.com/Deydra71/placement-operator/api v0.0.0-20231212134517-33ddbc5ba927/go.mod h1:e4/3ZiVNWfDi7TukPAWEPG2/1UjCtF5w7WIoGCVbuls=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/antihax/optional v1.0.0/go.mod h1:uupD/76wgC+ih3iEmQUL+0Ugr19nfwCT1kdvxnR2qWY=
 github.com/benbjohnson/clock v1.1.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
@@ -179,8 +181,6 @@ github.com/openstack-k8s-operators/openstack-baremetal-operator/api v0.3.1-0.202
 github.com/openstack-k8s-operators/openstack-baremetal-operator/api v0.3.1-0.20231128100725-67372c98ca78/go.mod h1:JLCVgdpOAk/zcJPJ+od/d0qOb41vkKsi9kzfjSQ6BAU=
 github.com/openstack-k8s-operators/ovn-operator/api v0.3.1-0.20231207051659-4e4b1dace006 h1:NUr7l5itUWUg6uI+VmLH/GShZtIJBT46DQ2lvCpn930=
 github.com/openstack-k8s-operators/ovn-operator/api v0.3.1-0.20231207051659-4e4b1dace006/go.mod h1:QGY716GEKATGlhZAjaJJvJk0uLBQMDK4nal+JRH2BMM=
-github.com/openstack-k8s-operators/placement-operator/api v0.3.1-0.20231207114158-8e2ef6183379 h1:d6RpqOajEaOwVaFshqfrZVzLujVemKgrjvoKZczDC9c=
-github.com/openstack-k8s-operators/placement-operator/api v0.3.1-0.20231207114158-8e2ef6183379/go.mod h1:vOGt6Pd/mHvSE7UdH/Prljz6q5sMdihNU+wlqkRS7m8=
 github.com/openstack-k8s-operators/swift-operator/api v0.3.1-0.20231130161451-e5ca233aa206 h1:G8Lgwqq8eNJxbuztwIrGzRpR6ES6+63Xkv1XmoK+ois=
 github.com/openstack-k8s-operators/swift-operator/api v0.3.1-0.20231130161451-e5ca233aa206/go.mod h1:TL8+gKz02kcXrK01QhlxTv5CdXGNWm9CGm5b2cLOqRI=
 github.com/openstack-k8s-operators/telemetry-operator/api v0.3.1-0.20231127160241-a5f3ba03357c h1:J2AIJg12SvIUZrdL8pRmDJjZFvRj9Tveq4De89WNJ3k=

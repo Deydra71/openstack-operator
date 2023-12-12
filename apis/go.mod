@@ -14,14 +14,14 @@ require (
 	github.com/openstack-k8s-operators/infra-operator/apis v0.3.1-0.20231206173636-5eb2ad7769a7
 	github.com/openstack-k8s-operators/ironic-operator/api v0.3.1-0.20231127105109-2a854ad66b54
 	github.com/openstack-k8s-operators/keystone-operator/api v0.3.1-0.20231128185906-0b4579c3dadf
-	github.com/openstack-k8s-operators/lib-common/modules/common v0.3.1-0.20231207110546-628604e7579b
+	github.com/openstack-k8s-operators/lib-common/modules/common v0.3.1-0.20231209173030-f7a552f208e7
 	github.com/openstack-k8s-operators/manila-operator/api v0.3.1-0.20231205160200-1f061113c717
 	github.com/openstack-k8s-operators/mariadb-operator/api v0.3.1-0.20231205003453-c971bdd03386
 	github.com/openstack-k8s-operators/neutron-operator/api v0.3.1-0.20231206091318-5f09d2fd3c1b
 	github.com/openstack-k8s-operators/nova-operator/api v0.3.1-0.20231207090516-6d83ed39ea1b
 	github.com/openstack-k8s-operators/octavia-operator/api v0.3.1-0.20231130180508-baf276ff6704
 	github.com/openstack-k8s-operators/ovn-operator/api v0.3.1-0.20231207051659-4e4b1dace006
-	github.com/openstack-k8s-operators/placement-operator/api v0.3.1-0.20231207114158-8e2ef6183379
+	github.com/openstack-k8s-operators/placement-operator/api v0.0.0-20231212134517-33ddbc5ba927
 	github.com/openstack-k8s-operators/swift-operator/api v0.3.1-0.20231130161451-e5ca233aa206
 	github.com/openstack-k8s-operators/telemetry-operator/api v0.3.1-0.20231127160241-a5f3ba03357c
 	github.com/rabbitmq/cluster-operator/v2 v2.5.0
@@ -125,3 +125,5 @@ replace github.com/openstack-k8s-operators/neutron-operator/api => github.com/st
 replace github.com/openstack-k8s-operators/glance-operator/api => github.com/stuggi/glance-operator/api v0.0.0-20231211125734-42de121c17af
 
 replace github.com/openstack-k8s-operators/cinder-operator/api => github.com/stuggi/cinder-operator/api v0.0.0-20231211125951-776f680fee9d
+
+replace github.com/openstack-k8s-operators/placement-operator/api => github.com/Deydra71/placement-operator/api v0.0.0-20231212134517-33ddbc5ba927
