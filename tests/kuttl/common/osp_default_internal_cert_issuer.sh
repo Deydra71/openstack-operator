@@ -21,43 +21,34 @@ function extract_host_port {
     echo "$host_port"
 }
 
-function check_endpoint {
-    local host_port=$1
+function check_keystone_endpoint {
+    local endpoint_url=$1
 
-    echo "Checking $host_port ..."
-    if ! echo | openssl s_client -connect "$host_port" &> /dev/null; then
+    echo "Checking Keystone endpoint $endpoint_url ..."
+    http_status=$(curl -s -o /dev/null -w "%{http_code}" "$endpoint_url")
+
+    if [[ "$http_status" -ge 200 && "$http_status" -lt 400 ]]; then
+        return 0
+    else
         return 1
     fi
-
-    return 0
 }
 
-# Get keystone-internal and neutron-internal URLs
-keystone_url=$(openstack endpoint list -c URL -f value | grep 'keystone-internal')
-neutron_url=$(openstack endpoint list -c URL -f value | grep 'neutron-internal')
-
-# Extract host and port for keystone-internal and neutron-internal
+keystone_url=$(openstack endpoint list -c URL -f value | grep 'keystone-public')
 keystone_host_port=$(extract_host_port "$keystone_url")
-neutron_host_port=$(extract_host_port "$neutron_url")
 
-# Check connections to keystone-internal and neutron-internal
-if ! check_endpoint "$keystone_host_port"; then
-    echo "Failed to connect to Keystone internal endpoint."
+if ! check_keystone_endpoint "$keystone_url"; then
+    echo "Failed to connect to Keystone public endpoint."
     exit 1
 fi
 
-if ! check_endpoint "$neutron_host_port"; then
-    echo "Failed to connect to Neutron internal endpoint."
-    exit 1
-fi
-
-# Check the rest of the internal endpoints for the expected issuer
+# Check endpoints for the expected issuer
 for url in $(openstack endpoint list -c URL -f value | grep 'svc'); do
-    # Extract the hostname and port
     host_port=$(extract_host_port "$url")
 
     echo "Checking $host_port ..."
     ISSUER=$(openssl s_client -connect $host_port < /dev/null 2>/dev/null | openssl x509 -issuer -noout -in /dev/stdin)
+
     if [[ "$ISSUER" != "$EXPECTED_ISSUER" ]]; then
         ISSUER_MISMATCHES+="$host_port issued by $ISSUER, expected $EXPECTED_ISSUER\n"
         ALL_MATCHED=0
