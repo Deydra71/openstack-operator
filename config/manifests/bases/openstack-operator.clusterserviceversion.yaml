@@ -7,7 +7,11 @@ metadata:
     features.operators.openshift.io/disconnected: "true"
     features.operators.openshift.io/fips-compliant: "true"
     operatorframework.io/suggested-namespace: openstack-operators
-    operators.openshift.io/infrastructure-features: '["disconnected"]'
+    features.operators.openshift.io/proxy-aware: "false"
+    features.operators.openshift.io/tls-profiles: "false"
+    features.operators.openshift.io/token-auth-aws: "false"
+    features.operators.openshift.io/token-auth-azure: "false"
+    features.operators.openshift.io/token-auth-gcp: "false"
     operators.operatorframework.io/builder: operator-sdk-v1.26.0
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
   name: openstack-operator.v0.0.0
@@ -514,11 +518,6 @@ spec:
         path: conditions
         x-descriptors:
         - urn:alm:descriptor:io.kubernetes.conditions
-      - description: Deployed
-        displayName: Deployed
-        path: deployed
-        x-descriptors:
-        - urn:alm:descriptor:com.tectonic.ui:booleanSwitch
       version: v1beta1
     - description: OpenStackDataPlaneNodeSet is the Schema for the openstackdataplanenodesets
         API OpenStackDataPlaneNodeSet name must be a valid RFC1123 as it is used in
