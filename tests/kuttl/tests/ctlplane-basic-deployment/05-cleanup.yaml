@@ -8,4 +8,3 @@ commands:
 - script: |
     oc delete --ignore-not-found=true -n $NAMESPACE pvc \
     srv-swift-storage-0
-    oc delete --ignore-not-found=true -n $NAMESPACE issuer rootca-internal-custom rootca-ingress-custom

@@ -4,7 +4,6 @@ timeout: 30
 commands:
   - script: |
       echo "Get fingerprints of all service certs"
-      echo "PWD $PWD"
       oc exec -i openstackclient -n $NAMESPACE -- bash -s < ../../common/osp_endpoint_fingerprints.sh > /tmp/endpoint_fingerprints_after
 
   - script: |
