@@ -52,9 +52,7 @@ func ReconcileCAs(ctx context.Context, instance *corev1.OpenStackControlPlane, h
 			corev1.OpenStackControlPlaneCAReadyCondition,
 			condition.ErrorReason,
 			condition.SeverityWarning,
-			corev1.OpenStackControlPlaneCAReadyErrorMessage,
-			issuerReq.Kind,
-			issuerReq.GetName(),
+			fmt.Sprintf("%s %s %s", corev1.OpenStackControlPlaneCAReadyErrorMessage, issuerReq.Kind, issuerReq.GetName()),
 			err.Error()))
 
 		return ctrlResult, err
@@ -492,6 +490,19 @@ func ReconcileCAs(ctx context.Context, instance *corev1.OpenStackControlPlane, h
 	}
 
 	instance.Status.TLS.CaBundleSecretName = tls.CABundleSecret
+
+	// Delete issuers without labels after reconciliation
+	if err := deleteIssuersWithoutLabels(ctx, helper, instance.Namespace); err != nil {
+		instance.Status.Conditions.Set(condition.FalseCondition(
+			corev1.OpenStackControlPlaneCAReadyCondition,
+			condition.ErrorReason,
+			condition.SeverityWarning,
+			fmt.Sprintf("%s %s %s", corev1.OpenStackControlPlaneCAReadyErrorMessage, "issuer-cleanup", err.Error()),
+			"issuer-cleanup",
+			err.Error()))
+
+		return ctrlResult, err
+	}
 
 	return ctrl.Result{}, nil
 }
@@ -942,4 +953,44 @@ func getIssuerAnnotations(certConfig *corev1.CertConfig) map[string]string {
 	}
 
 	return annotations
+}
+
+func deleteIssuersWithoutLabels(ctx context.Context, helper *helper.Helper, namespace string) error {
+	issuerList := &certmgrv1.IssuerList{}
+	listOpts := []client.ListOption{
+		client.InNamespace(namespace),
+	}
+
+	err := helper.GetClient().List(ctx, issuerList, listOpts...)
+	if err != nil {
+		return fmt.Errorf("error listing issuers: %w", err)
+	}
+
+	newIssuerLabeled := false
+	for _, issuer := range issuerList.Items {
+		if _, hasLabel := issuer.Labels[certmanager.RootCAIssuerPublicLabel]; hasLabel {
+			newIssuerLabeled = true
+			break
+		}
+	}
+
+	// If the new issuer is labeled, delete old issuers without labels
+	if newIssuerLabeled {
+		for _, issuer := range issuerList.Items {
+			if len(issuer.Labels) == 0 {
+				err := helper.GetClient().Delete(ctx, &issuer)
+				if err != nil {
+					if !k8s_errors.IsNotFound(err) {
+						return fmt.Errorf("error deleting issuer %s: %w", issuer.Name, err)
+					}
+				} else {
+					helper.GetLogger().Info(fmt.Sprintf("Deleted issuer %s without labels", issuer.Name))
+				}
+			}
+		}
+	} else {
+		return fmt.Errorf("new issuer is not labeled, skipping deletion of old issuers without labels")
+	}
+
+	return nil
 }
