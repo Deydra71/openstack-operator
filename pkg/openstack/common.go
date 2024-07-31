@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	certmgrv1 "github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
 	"github.com/go-logr/logr"
 	routev1 "github.com/openshift/api/route/v1"
 	barbicanv1 "github.com/openstack-k8s-operators/barbican-operator/api/v1beta1"
@@ -291,6 +292,22 @@ func EnsureEndpointConfig(
 						}
 						return endpoints, ctrl.Result{}, err
 					}
+					// Delete the issued certificate if it exists
+					certName := fmt.Sprintf("%s-route", ed.Name)
+					cert := certmanager.NewCertificate(
+						&certmgrv1.Certificate{
+							ObjectMeta: metav1.ObjectMeta{
+								Name:      certName,
+								Namespace: ed.Namespace,
+							},
+						},
+						5*time.Second,
+					)
+					err = cert.Delete(ctx, helper)
+					if err != nil {
+						helper.GetLogger().Error(err, fmt.Sprintf("Failed to delete unused route certificate %s", certName))
+						return endpoints, ctrl.Result{}, err
+					}
 				} else {
 					// issue a certificate for public pod virthost
 					certRequest := certmanager.CertificateRequest{
@@ -571,6 +588,12 @@ func (ed *EndpointDetail) CreateRoute(
 					}
 				}
 			}
+		} else if ed.Route.OverrideSpec.Spec != nil && ed.Route.OverrideSpec.Spec.TLS != nil {
+			if ed.Route.OverrideSpec.Spec.TLS.CACertificate == "" ||
+				ed.Route.OverrideSpec.Spec.TLS.Certificate == "" ||
+				ed.Route.OverrideSpec.Spec.TLS.Key == "" {
+				return ctrl.Result{}, fmt.Errorf("incomplete tls override data")
+			}
 		} else {
 			certRequest := certmanager.CertificateRequest{
 				IssuerName:  ed.Route.TLS.IssuerName,
@@ -647,6 +670,27 @@ func (ed *EndpointDetail) CreateRoute(
 			return ctrlResult, nil
 		}
 
+		// Delete the issued certificate if it exists and custom cert secret or direct TLS data was provided
+		if ed.Route.TLS.SecretName != nil || (ed.Route.OverrideSpec.Spec != nil && ed.Route.OverrideSpec.Spec.TLS != nil &&
+			(ed.Route.OverrideSpec.Spec.TLS.CACertificate != "" &&
+				ed.Route.OverrideSpec.Spec.TLS.Certificate != "" &&
+				ed.Route.OverrideSpec.Spec.TLS.Key != "")) {
+			certName := fmt.Sprintf("%s-route", ed.Name)
+			cert := certmanager.NewCertificate(
+				&certmgrv1.Certificate{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      certName,
+						Namespace: ed.Namespace,
+					},
+				},
+				5*time.Second,
+			)
+			err := cert.Delete(ctx, helper)
+			if err != nil {
+				helper.GetLogger().Error(err, fmt.Sprintf("Failed to delete unused route certificate %s", certName))
+				return ctrl.Result{}, err
+			}
+		}
 		ed.Proto = service.ProtocolHTTPS
 	} else {
 		ed.Proto = service.ProtocolHTTP
