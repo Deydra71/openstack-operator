@@ -9,6 +9,89 @@ spec:
     template:
       databaseInstance: openstack
       secret: osp-secret
+      apiOverride:
+        route:
+          spec:
+            tls:
+              termination: reencrypt
+              certificate: |-
+                -----BEGIN CERTIFICATE-----
+                MIIDwDCCAqigAwIBAgIUTAVefNKvzgZpFQmBXtYOClm7SfMwDQYJKoZIhvcNAQEL
+                BQAwczELMAkGA1UEBhMCVVMxEzARBgNVBAgMCkNhbGlmb3JuaWExEjAQBgNVBAcM
+                CVBhbG8gQWx0bzETMBEGA1UECgwKTXkgQ29tcGFueTEWMBQGA1UECwwNSVQgRGVw
+                YXJ0bWVudDEOMAwGA1UEAwwFTXkgQ0EwHhcNMjQwNzI2MTE1MzMxWhcNMjUwNzI2
+                MTE1MzMxWjB9MQswCQYDVQQGEwJVUzETMBEGA1UECAwKQ2FsaWZvcm5pYTESMBAG
+                A1UEBwwJUGFsbyBBbHRvMRMwEQYDVQQKDApNeSBDb21wYW55MRYwFAYDVQQLDA1J
+                VCBEZXBhcnRtZW50MRgwFgYDVQQDDA9rZXlzdG9uZS1wdWJsaWMwggEiMA0GCSqG
+                SIb3DQEBAQUAA4IBDwAwggEKAoIBAQCoR14laMXK8qaC+s2jJtOXuSVla7trW7vK
+                AJUikQ8glSSxUDERmAohOmTLLgoN1rsMmY3PsBoA7N8m6ICelQ670m7If+FC4jq5
+                M5ZtzK7pIpv7iFJhW/g5jmjRhQSkhpRAw2jVueL9mbQsr7G8xaRN1bQnhYttyyNo
+                THgKHGmNJDIhI2jlvyqio1CbvSz5k82ICWZ58OXa8BSgYxiECNoFEqYgjeuae4M8
+                60fucZMpv4a0a+5QmmTTVUUOavb64F6QOAevOT20i63SCGW1erFOleywkBf+NkhZ
+                lw917Hk8vunj0wnEt43k0SvZOmRi5Q9SOesrSvbWpmHqz/2pIuTbAgMBAAGjQjBA
+                MB0GA1UdDgQWBBT77uXdVkwfEqqJDRgSb7JF0e9VBTAfBgNVHSMEGDAWgBRXgLSM
+                HGzJtxgUzdkoHTravgZi/DANBgkqhkiG9w0BAQsFAAOCAQEAJ9TDMFn3MqiE9Gmt
+                O9CmEaq851jFgeAh/5qempTdMvUo9JLI7Od/CYG6S/cHI9FQcVlYV66cLqRpB950
+                jxdugJypHRau/zuMahOb5Dr6lwmWVooGosR3lBHyDkxM4CjaUToPRReTa5jC5kNQ
+                XUiahkoArhHUbvQqLV5VbTJk5nhIIZRSq7ZxOUki2JJSH5bllDOpP4Ni/ElZX68f
+                1njKHBrKa5lAXDvcX//23Wae1uiUoxReSwG72/roa3BlThjcSOUsf9UXtnI0wAaN
+                xCNO411Lz1fxpl+1ikPm2V2oBej5NIVyUkSenNKuHk58E7NFX3APnluVbsbuABoM
+                z9k5uQ==
+                -----END CERTIFICATE-----
+              key: |-
+                -----BEGIN PRIVATE KEY-----
+                MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCoR14laMXK8qaC
+                +s2jJtOXuSVla7trW7vKAJUikQ8glSSxUDERmAohOmTLLgoN1rsMmY3PsBoA7N8m
+                6ICelQ670m7If+FC4jq5M5ZtzK7pIpv7iFJhW/g5jmjRhQSkhpRAw2jVueL9mbQs
+                r7G8xaRN1bQnhYttyyNoTHgKHGmNJDIhI2jlvyqio1CbvSz5k82ICWZ58OXa8BSg
+                YxiECNoFEqYgjeuae4M860fucZMpv4a0a+5QmmTTVUUOavb64F6QOAevOT20i63S
+                CGW1erFOleywkBf+NkhZlw917Hk8vunj0wnEt43k0SvZOmRi5Q9SOesrSvbWpmHq
+                z/2pIuTbAgMBAAECggEARKhRpiu4P5R/EYOosP9fZ1D4DAhHgIb9+G4CawcKR/3x
+                6ZJRYt9IisQbabaQDZNl378q1+j+ww/iACruh0VDrKgv4Qgj7TkGQpfksUnIt4AS
+                ai71hZmTjlAnPgzqlwH9rOrNdB4SmevDUlQgzWdKISOnDFT1TUeLW7uPYnizLA1F
+                NrwM0K5OId3r1VzpHTM4NNceT1AFCGd6+UJIn9WpXrVdT7vAgoFw7AZDbWmGjS+B
+                D5EnKmJA8pxlDFb3XVyB4uQgXZUs8apWLe23sajs4cef5YnOd/XGN7vgFFyJNans
+                CGJLRqnNDWintyVrkD3hY+re0kmIQqI/HubVG4qpUQKBgQDnREGrSyZp5oHKf8px
+                wLcYwMGn2tLIfyy3M+ZHBvIPskaaI6n+Wettp1MHdScqIZd2QJr+0ZL8FbEP6xEm
+                sT5716uotEKf6XsIGySWXMH/JGZVjtrHP6v4SF8+vLsx5XOX+MnbxPSOj0ZMENdO
+                V5WEbHg2IgTehaMuNHZpW5qOeQKBgQC6RpiA7R+pjfRzwzpjbVzoekXxeYRrYfs5
+                zSKLwBDyvc78YZlVSmyvXhehR6jKmoOgwGMfvA8zAMfkq8B9BObQ94HMgB0grmq2
+                Msdg8d8NzPfh1hX5iWR768hdpp9f4wuKa82uKsIIfCNgsH0tmXsWumcokvlEiY1H
+                8NkCctDo8wKBgFQJyq87TMc42ztBusghVqepC/Y6H1R6Wj5snqZ60KWBjARhJ1nl
+                RRcAsbxJByVZNZfkHC6y622tWD1Hl2DvEZyhH6DbeEZx6qJkcqQtKtXTXViD4955
+                tb0wV2QN4xxbm+jCoF+7L39KcyobCJJQY2XOoNRTAl/2Qfj9WXYpsn1JAoGBAKyF
+                mdU+ySZmfVOCK1/O+E+wf3soisZR1zYvkaFRX+ESftQtKLBf382EHeqXzfLnrKWD
+                ycqoiIM6Y+icUgj4MzazJZpbxZ5xLBBXc2WMXoQPpD2b5HpbD5/ePpLOManDRPsM
+                4VA/9bmaD8ILc8R59BCWz9g6V3ds1lcc8EBeSrKVAoGAYbwR04sgp4od9soxvuBh
+                5ZQlK7J4syFnefd3/1UorJivttwwuLVVwjYs3GtNz20NEi6VRCvVzcgck5DqJYJQ
+                cozcRSwYSLCGuEj78B1ZAcr6FsFjroKqDfuuJO6+u7UPZE2YaRh8Z84G/DJ3zh0Q
+                PgfRu9MHRRfjG/6UfKZW5+Q=
+                -----END PRIVATE KEY-----
+              caCertificate: |-
+                -----BEGIN CERTIFICATE-----
+                MIIDxzCCAq+gAwIBAgIUfj+QF0sqYd546BA7Cqagwc22LkMwDQYJKoZIhvcNAQEL
+                BQAwczELMAkGA1UEBhMCVVMxEzARBgNVBAgMCkNhbGlmb3JuaWExEjAQBgNVBAcM
+                CVBhbG8gQWx0bzETMBEGA1UECgwKTXkgQ29tcGFueTEWMBQGA1UECwwNSVQgRGVw
+                YXJ0bWVudDEOMAwGA1UEAwwFTXkgQ0EwHhcNMjQwNzI2MTE1MzExWhcNMjUwNzI2
+                MTE1MzExWjBzMQswCQYDVQQGEwJVUzETMBEGA1UECAwKQ2FsaWZvcm5pYTESMBAG
+                A1UEBwwJUGFsbyBBbHRvMRMwEQYDVQQKDApNeSBDb21wYW55MRYwFAYDVQQLDA1J
+                VCBEZXBhcnRtZW50MQ4wDAYDVQQDDAVNeSBDQTCCASIwDQYJKoZIhvcNAQEBBQAD
+                ggEPADCCAQoCggEBALMLoonI5Zs4L+SxUNNqpuuxwucyqSvkisHsaZsi0UQsLQTS
+                0XDzN6C1BKpxTfWZNfI1D5tKnB7dUCmyEKT3wx5fGGiBIu/DGw+o52Ks3fIdW2SX
+                bmIAL5XA/kXD09XWcI1yAjDdkmQ+/zQvhHNqkKH//FHGtXmNfKJTp+oBnejIp4+W
+                VfhyPH8zSv8eB46+A58pKK/Kv8e4lLzLOxOlThwwAV4/7T/dGBaF3iYowx9r/R8r
+                Y+MmH5lmykr3PJApoEkAqIX7lyF4tojHJ9yrLwgfS+8uzKLCKzrKaUxUvSZlPFU6
+                dzWp4OqtHGYn8wdycNUxkMSyMHQX3yF/b7N7MX0CAwEAAaNTMFEwHQYDVR0OBBYE
+                FFeAtIwcbMm3GBTN2SgdOtq+BmL8MB8GA1UdIwQYMBaAFFeAtIwcbMm3GBTN2Sgd
+                Otq+BmL8MA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAAMtLHWS
+                xxG8Yv93ELSmdH5ua023uBFribZlGqsfM5h621aPataTiwausmzbqqH6MzWfmGSz
+                K3bj3ZI9W+mOro5uw+LUE0J/YeP+EvFV2CcyEBgpN/koic0RqMzKKRhTIsbULj3q
+                GyMjZkLsJ0HXHXix0tjV4lXMQzwO8qJIlaeVU978fCRbOi4KWTc5SFfmyIpXRQC8
+                /A2NqTSKi2E3aeDL6Z0JzXIxGCcYFYQTd+wIA4Ae9rIQRiytJ51bVmgx3F0N3is6
+                BLHpyNrJdt2mbFrCO0YVtm5TZYZmYG628GRTkzqzhzOPluJRPc1FjXEIybCXJTvc
+                +cW0CsXoDDHIYeQ=
+                -----END CERTIFICATE-----
+              insecureEdgeTerminationPolicy: Redirect
   galera:
     templates:
       openstack:
