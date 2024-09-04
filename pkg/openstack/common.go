@@ -131,7 +131,8 @@ type EndpointDetail struct {
 
 // ServiceTLSDetails - tls settings for the endpoint
 type ServiceTLSDetails struct {
-	Enabled bool
+	Enabled  bool
+	CertName string
 	tls.GenericService
 	tls.Ca
 }
@@ -155,6 +156,7 @@ type RouteDetails struct {
 type RouteTLSDetails struct {
 	Enabled    bool
 	SecretName *string
+	CertName   string
 	IssuerName string
 	tls.Ca
 }
@@ -218,12 +220,12 @@ func EnsureEndpointConfig(
 		}
 
 		ed.Service.OverrideSpec = svcOverrides[ed.Type]
-
 		// TLS on the pod level is enabled if
 		// * TLS is enabled for pod level
 		// * the particular service has not TLS.Disabled set to true
 		if instance.Spec.TLS.PodLevel.Enabled && !serviceTLSDisabled {
 			ed.Service.TLS.Enabled = true
+			ed.Service.TLS.CertName = fmt.Sprintf("%s-svc", ed.Name)
 		} else {
 			ed.Service.TLS.Enabled = false
 		}
@@ -242,6 +244,7 @@ func EnsureEndpointConfig(
 			if instance.Spec.TLS.Ingress.Enabled {
 				// TLS for route enabled if public endpoint TLS is true
 				ed.Route.TLS.Enabled = true
+				ed.Route.TLS.CertName = fmt.Sprintf("%s-route", ed.Name)
 
 				// if a custom cert secret was provided we'll use this for
 				// the route, otherwise the issuer is used to request one
@@ -278,7 +281,6 @@ func EnsureEndpointConfig(
 
 			if ed.Service.TLS.Enabled {
 				ed.Service.TLS.CaBundleSecretName = tls.CABundleSecret
-
 				// if a custom cert secret was provided and ed.Route.Create == false
 				// we'll use this for the service, otherwise issue a cert. This is for
 				// use case where you deploy without ingress/routes and also use
@@ -293,11 +295,10 @@ func EnsureEndpointConfig(
 						return endpoints, ctrl.Result{}, err
 					}
 					// Delete the issued certificate if it exists
-					certName := fmt.Sprintf("%s-route", ed.Name)
 					cert := certmanager.NewCertificate(
 						&certmgrv1.Certificate{
 							ObjectMeta: metav1.ObjectMeta{
-								Name:      certName,
+								Name:      ed.Route.TLS.CertName,
 								Namespace: ed.Namespace,
 							},
 						},
@@ -305,14 +306,13 @@ func EnsureEndpointConfig(
 					)
 					err = cert.Delete(ctx, helper)
 					if err != nil {
-						helper.GetLogger().Error(err, fmt.Sprintf("Failed to delete unused route certificate %s", certName))
 						return endpoints, ctrl.Result{}, err
 					}
 				} else {
 					// issue a certificate for public pod virthost
 					certRequest := certmanager.CertificateRequest{
 						IssuerName: instance.GetPublicIssuer(),
-						CertName:   fmt.Sprintf("%s-svc", ed.Name),
+						CertName:   ed.Service.TLS.CertName,
 						Hostnames: []string{
 							fmt.Sprintf("%s.%s.svc", ed.Name, instance.Namespace),
 							fmt.Sprintf("%s.%s.svc.%s", ed.Name, instance.Namespace, ClusterInternalDomain),
@@ -362,7 +362,7 @@ func EnsureEndpointConfig(
 				// request certificate
 				certRequest := certmanager.CertificateRequest{
 					IssuerName: instance.GetInternalIssuer(),
-					CertName:   fmt.Sprintf("%s-svc", ed.Name),
+					CertName:   ed.Service.TLS.CertName,
 					Hostnames: []string{
 						fmt.Sprintf("%s.%s.svc", ed.Name, instance.Namespace),
 						fmt.Sprintf("%s.%s.svc.%s", ed.Name, instance.Namespace, ClusterInternalDomain),
@@ -588,16 +588,12 @@ func (ed *EndpointDetail) CreateRoute(
 					}
 				}
 			}
-		} else if ed.Route.OverrideSpec.Spec != nil && ed.Route.OverrideSpec.Spec.TLS != nil {
-			if ed.Route.OverrideSpec.Spec.TLS.CACertificate == "" ||
-				ed.Route.OverrideSpec.Spec.TLS.Certificate == "" ||
-				ed.Route.OverrideSpec.Spec.TLS.Key == "" {
-				return ctrl.Result{}, fmt.Errorf("incomplete tls override data")
-			}
-		} else {
+		}
+
+		if ed.Route.TLS.SecretName == nil && !hasCertInOverrideSpec(ed.Route.OverrideSpec) {
 			certRequest := certmanager.CertificateRequest{
 				IssuerName:  ed.Route.TLS.IssuerName,
-				CertName:    fmt.Sprintf("%s-route", ed.Name),
+				CertName:    ed.Route.TLS.CertName,
 				Hostnames:   []string{*ed.Hostname},
 				Ips:         nil,
 				Annotations: ed.Annotations,
@@ -610,7 +606,7 @@ func (ed *EndpointDetail) CreateRoute(
 			if instance.Spec.TLS.Ingress.Cert.RenewBefore != nil {
 				certRequest.RenewBefore = &instance.Spec.TLS.Ingress.Cert.RenewBefore.Duration
 			}
-			//create the cert using our issuer for the endpoint
+			//create the cert using default issuer for the endpoint
 			certSecret, ctrlResult, err = certmanager.EnsureCert(
 				ctx,
 				helper,
@@ -622,7 +618,6 @@ func (ed *EndpointDetail) CreateRoute(
 				return ctrlResult, nil
 			}
 		}
-
 		// create default TLS route override
 		tlsConfig := &routev1.TLSConfig{
 			Termination:                   routev1.TLSTerminationEdge,
@@ -633,7 +628,7 @@ func (ed *EndpointDetail) CreateRoute(
 		}
 
 		// for internal TLS (TLSE) use routev1.TLSTerminationReencrypt
-		if ed.Service.TLS.Enabled && ed.Service.TLS.SecretName != nil {
+		if ed.Service.TLS.Enabled && (ed.Service.TLS.SecretName != nil || hasCertInOverrideSpec(ed.Route.OverrideSpec)) {
 			// get the TLSInternalCABundleFile to add it to the route
 			// to be able to validate public/internal service endpoints
 			tlsConfig.DestinationCACertificate, ctrlResult, err = secret.GetDataFromSecret(
@@ -671,15 +666,11 @@ func (ed *EndpointDetail) CreateRoute(
 		}
 
 		// Delete the issued certificate if it exists and custom cert secret or direct TLS data was provided
-		if ed.Route.TLS.SecretName != nil || (ed.Route.OverrideSpec.Spec != nil && ed.Route.OverrideSpec.Spec.TLS != nil &&
-			(ed.Route.OverrideSpec.Spec.TLS.CACertificate != "" &&
-				ed.Route.OverrideSpec.Spec.TLS.Certificate != "" &&
-				ed.Route.OverrideSpec.Spec.TLS.Key != "")) {
-			certName := fmt.Sprintf("%s-route", ed.Name)
+		if ed.Route.TLS.SecretName != nil || hasCertInOverrideSpec(ed.Route.OverrideSpec) {
 			cert := certmanager.NewCertificate(
 				&certmgrv1.Certificate{
 					ObjectMeta: metav1.ObjectMeta{
-						Name:      certName,
+						Name:      ed.Route.TLS.CertName,
 						Namespace: ed.Namespace,
 					},
 				},
@@ -687,7 +678,6 @@ func (ed *EndpointDetail) CreateRoute(
 			)
 			err := cert.Delete(ctx, helper)
 			if err != nil {
-				helper.GetLogger().Error(err, fmt.Sprintf("Failed to delete unused route certificate %s", certName))
 				return ctrl.Result{}, err
 			}
 		}
@@ -789,4 +779,16 @@ func GetIssuerCertSecret(
 		return "", err
 	}
 	return issuer.Spec.CA.SecretName, nil
+}
+
+func hasCertInOverrideSpec(overrideSpec route.OverrideSpec) bool {
+	if overrideSpec.Spec == nil {
+		return false
+	}
+	if overrideSpec.Spec.TLS == nil {
+		return false
+	}
+	return overrideSpec.Spec.TLS.CACertificate != "" &&
+		overrideSpec.Spec.TLS.Certificate != "" &&
+		overrideSpec.Spec.TLS.Key != ""
 }
