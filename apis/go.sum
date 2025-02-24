@@ -1,3 +1,5 @@
+github.com/Deydra71/barbican-operator/api v0.0.0-20250213161609-cd213341390b h1:aXQvlfjGP3J9sDR3MjuaYF1VUEa1RyQod9aAUnYLn1A=
+github.com/Deydra71/barbican-operator/api v0.0.0-20250213161609-cd213341390b/go.mod h1:MP9fcTNnT27ltU5j9t0K6i0F6J+9+5k0o0qNM4vg47g=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
 github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
 github.com/cert-manager/cert-manager v1.14.7 h1:C2L59sMGMdSpd8SPx5qfPAL7ejZaNxJBRd24S7Ws5Ek=
@@ -94,8 +96,6 @@ github.com/onsi/gomega v1.34.1 h1:EUMJIKUjM8sKjYbtxQI9A4z2o+rruxnzNvpknOXie6k=
 github.com/onsi/gomega v1.34.1/go.mod h1:kU1QgUvBDLXBJq618Xvm2LUX6rSAfRaFRTcdOeDLwwY=
 github.com/openshift/api v0.0.0-20240830023148-b7d0481c9094 h1:J1wuGhVxpsHykZBa6Beb1gQ96Ptej9AE/BvwCBiRj1E=
 github.com/openshift/api v0.0.0-20240830023148-b7d0481c9094/go.mod h1:CxgbWAlvu2iQB0UmKTtRu1YfepRg1/vJ64n2DlIEVz4=
-github.com/openstack-k8s-operators/barbican-operator/api v0.5.1-0.20250127073547-cf83ce8088a0 h1:Fpiury9F9pOpdUUdB0stSjc8SjRCvWnOrD9k0Y1fJdA=
-github.com/openstack-k8s-operators/barbican-operator/api v0.5.1-0.20250127073547-cf83ce8088a0/go.mod h1:MP9fcTNnT27ltU5j9t0K6i0F6J+9+5k0o0qNM4vg47g=
 github.com/openstack-k8s-operators/cinder-operator/api v0.5.1-0.20250122131751-fa5a7a53e15d h1:Yhnh/8ERlSuwufK54InF+6/zH8f3vuQzL6Cc/n4SJ/k=
 github.com/openstack-k8s-operators/cinder-operator/api v0.5.1-0.20250122131751-fa5a7a53e15d/go.mod h1:GoZVwi0mFiqivii2K+EBYW0meEv/X8txqqpBRjxDVbc=
 github.com/openstack-k8s-operators/designate-operator/api v0.5.1-0.20250205122129-ae40ae1d9504 h1:aohiThW8PwzZS8bnsO7QOFbsnG6Ws9FcYUQmkIA3heA=
