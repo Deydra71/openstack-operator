@@ -212,6 +212,11 @@ type OpenStackControlPlaneSpec struct {
 	// TopologyRef to apply the Topology defined by the associated CR referenced
 	// by name
 	TopologyRef *topologyv1.TopoRef `json:"topologyRef,omitempty"`
+
+	// +kubebuilder:validation:Optional
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
+	// ApplicationCredential - Parameters related to the ApplicationCredential
+	ApplicationCredential ApplicationCredentialSection `json:"applicationCredential,omitempty"`
 }
 
 // TLSSection defines the desired state of TLS configuration
@@ -406,6 +411,11 @@ type PlacementSection struct {
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	// APIOverride, provides the ability to override the generated manifest of several child resources.
 	APIOverride Override `json:"apiOverride,omitempty"`
+
+	// ApplicationCredential allows service-specific overrides of the global AC configuration.
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
+	// +kubebuilder:validation:Optional
+	ApplicationCredential ApplicationCredentialSection `json:"applicationCredential,omitempty"`
 }
 
 // GlanceSection defines the desired state of Glance service
@@ -432,6 +442,11 @@ type GlanceSection struct {
 	// Convenient to avoid podname (and thus hostname) collision between different deployments.
 	// Useful for CI jobs as well as preproduction and production environments that use the same storage backend, etc.
 	UniquePodNames bool `json:"uniquePodNames"`
+
+	// ApplicationCredential allows service-specific overrides of the global AC configuration.
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
+	// +kubebuilder:validation:Optional
+	ApplicationCredential ApplicationCredentialSection `json:"applicationCredential,omitempty"`
 }
 
 // CinderSection defines the desired state of Cinder service
@@ -458,6 +473,11 @@ type CinderSection struct {
 	// Convenient to avoid podname (and thus hostname) collision between different deployments.
 	// Useful for CI jobs as well as preproduction and production environments that use the same storage backend, etc.
 	UniquePodNames bool `json:"uniquePodNames"`
+
+	// ApplicationCredential allows service-specific overrides of the global AC configuration.
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
+	// +kubebuilder:validation:Optional
+	ApplicationCredential ApplicationCredentialSection `json:"applicationCredential,omitempty"`
 }
 
 // GaleraSection defines the desired state of Galera services
@@ -551,6 +571,11 @@ type NeutronSection struct {
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	// APIOverride, provides the ability to override the generated manifest of several child resources.
 	APIOverride Override `json:"apiOverride,omitempty"`
+
+	// ApplicationCredential allows service-specific overrides of the global AC configuration.
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
+	// +kubebuilder:validation:Optional
+	ApplicationCredential ApplicationCredentialSection `json:"applicationCredential,omitempty"`
 }
 
 // NovaSection defines the desired state of Nova services
@@ -577,6 +602,11 @@ type NovaSection struct {
 	// for a nova cell. cell0 never have compute nodes and therefore it won't have a noVNCProxy deployed.
 	// Providing an override for cell0 noVNCProxy does not have an effect.
 	CellOverride map[string]NovaCellOverrideSpec `json:"cellOverride,omitempty"`
+
+	// ApplicationCredential allows service-specific overrides of the global AC configuration.
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
+	// +kubebuilder:validation:Optional
+	ApplicationCredential ApplicationCredentialSection `json:"applicationCredential,omitempty"`
 }
 
 // NovaCellOverrideSpec to override the generated manifest of several child resources.
@@ -698,6 +728,11 @@ type TelemetrySection struct {
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	// AlertmanagerOverride, provides the ability to override the generated manifest of several child resources.
 	AlertmanagerOverride Override `json:"alertmanagerOverride,omitempty"`
+
+	// ApplicationCredential allows service-specific overrides of the global AC configuration.
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
+	// +kubebuilder:validation:Optional
+	ApplicationCredential ApplicationCredentialSection `json:"applicationCredential,omitempty"`
 }
 
 // SwiftSection defines the desired state of Swift service
@@ -717,6 +752,11 @@ type SwiftSection struct {
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	// ProxyOverride, provides the ability to override the generated manifest of several child resources.
 	ProxyOverride Override `json:"proxyOverride,omitempty"`
+
+	// ApplicationCredential allows service-specific overrides of the global AC configuration.
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
+	// +kubebuilder:validation:Optional
+	ApplicationCredential ApplicationCredentialSection `json:"applicationCredential,omitempty"`
 }
 
 // OctaviaSection defines the desired state of the Octavia service
@@ -774,6 +814,10 @@ type BarbicanSection struct {
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	// APIOverride, provides the ability to override the generated manifest of several child resources.
 	APIOverride Override `json:"apiOverride,omitempty"`
+
+	// ApplicationCredential allows service-specific overrides of the global AC configuration.
+	// +kubebuilder:validation:Optional
+	ApplicationCredential ApplicationCredentialSection `json:"applicationCredential,omitempty"`
 }
 
 // RedisSection defines the desired state of the Redis service
@@ -796,6 +840,26 @@ type OpenStackClientSection struct {
 	// +operator-sdk:csv:customresourcedefinitions:type=spec
 	// Template - Overrides to use when creating the OpenStackClient Resource
 	Template v1beta1.OpenStackClientSpecCore `json:"template,omitempty"`
+}
+
+// ApplicationCredentialSection defines the desired configuration for ApplicationCredentials.
+type ApplicationCredentialSection struct {
+	// Enabled indicates whether an ApplicationCredential should be created
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default:true
+	Enabled bool `json:"enabled"`
+
+	// ExpirationDays sets the lifetime (in days) for the AC
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default=7
+	// +kubebuilder:validation:Minimum=1
+	ExpirationDays int `json:"expirationDays,omitempty"`
+
+	// GracePeriodDays sets how many days before expiration the AC should be rotated
+	// +kubebuilder:validation:Optional
+	// +kubebuilder:default=7
+	// +kubebuilder:validation:Minimum=1
+	GracePeriodDays int `json:"gracePeriodDays,omitempty"`
 }
 
 // OpenStackControlPlaneStatus defines the observed state of OpenStackControlPlane
