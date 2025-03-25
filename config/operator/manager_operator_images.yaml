@@ -26,7 +26,7 @@ spec:
         - name: RELATED_IMAGE_HORIZON_OPERATOR_MANAGER_IMAGE_URL
           value: quay.io/openstack-k8s-operators/horizon-operator@sha256:17730abe98e02780580ec69ddcf3ca29575a757081145497fd5a13f8f398aec5
         - name: RELATED_IMAGE_INFRA_OPERATOR_MANAGER_IMAGE_URL
-          value: quay.io/openstack-k8s-operators/infra-operator@sha256:d008e0cfc04f8ee4f6faec2a9cf8c5195283a08c2c7f2357f312a37aeae37ff9
+          value: quay.io/openstack-k8s-operators/infra-operator@sha256:7e722b0b523846c06bd67fc86fd88c94e49a91be53e4a6d57854fc181422e647
         - name: RELATED_IMAGE_IRONIC_OPERATOR_MANAGER_IMAGE_URL
           value: quay.io/openstack-k8s-operators/ironic-operator@sha256:cad4bae50e50428a5d7fc7bf0ed426b98431e58698be8f8ded54022b9f7d2c00
         - name: RELATED_IMAGE_KEYSTONE_OPERATOR_MANAGER_IMAGE_URL

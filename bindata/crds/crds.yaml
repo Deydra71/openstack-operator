@@ -204,6 +204,15 @@ spec:
             type: object
           spec:
             properties:
+              applicationCredential:
+                properties:
+                  enabled:
+                    type: boolean
+                  expirationDays:
+                    type: integer
+                  gracePeriodDays:
+                    type: integer
+                type: object
               barbican:
                 properties:
                   apiOverride:
@@ -329,6 +338,15 @@ spec:
                           secretName:
                             type: string
                         type: object
+                    type: object
+                  applicationCredential:
+                    properties:
+                      enabled:
+                        type: boolean
+                      expirationDays:
+                        type: integer
+                      gracePeriodDays:
+                        type: integer
                     type: object
                   enabled:
                     default: true
@@ -831,6 +849,15 @@ spec:
                           secretName:
                             type: string
                         type: object
+                    type: object
+                  applicationCredential:
+                    properties:
+                      enabled:
+                        type: boolean
+                      expirationDays:
+                        type: integer
+                      gracePeriodDays:
+                        type: integer
                     type: object
                   enabled:
                     default: true
@@ -1824,6 +1851,15 @@ spec:
                           secretName:
                             type: string
                         type: object
+                    type: object
+                  applicationCredential:
+                    properties:
+                      enabled:
+                        type: boolean
+                      expirationDays:
+                        type: integer
+                      gracePeriodDays:
+                        type: integer
                     type: object
                   enabled:
                     default: false
@@ -3611,6 +3647,15 @@ spec:
                           type: object
                       type: object
                     type: object
+                  applicationCredential:
+                    properties:
+                      enabled:
+                        type: boolean
+                      expirationDays:
+                        type: integer
+                      gracePeriodDays:
+                        type: integer
+                    type: object
                   enabled:
                     default: true
                     type: boolean
@@ -4509,6 +4554,15 @@ spec:
                             type: string
                         type: object
                     type: object
+                  applicationCredential:
+                    properties:
+                      enabled:
+                        type: boolean
+                      expirationDays:
+                        type: integer
+                      gracePeriodDays:
+                        type: integer
+                    type: object
                   cnfAPIOverride:
                     properties:
                       route:
@@ -5156,6 +5210,15 @@ spec:
                           secretName:
                             type: string
                         type: object
+                    type: object
+                  applicationCredential:
+                    properties:
+                      enabled:
+                        type: boolean
+                      expirationDays:
+                        type: integer
+                      gracePeriodDays:
+                        type: integer
                     type: object
                   enabled:
                     default: false
@@ -5900,6 +5963,15 @@ spec:
                           secretName:
                             type: string
                         type: object
+                    type: object
+                  applicationCredential:
+                    properties:
+                      enabled:
+                        type: boolean
+                      expirationDays:
+                        type: integer
+                      gracePeriodDays:
+                        type: integer
                     type: object
                   enabled:
                     default: false
@@ -6687,6 +6759,15 @@ spec:
                             type: string
                         type: object
                     type: object
+                  applicationCredential:
+                    properties:
+                      enabled:
+                        type: boolean
+                      expirationDays:
+                        type: integer
+                      gracePeriodDays:
+                        type: integer
+                    type: object
                   enabled:
                     default: true
                     type: boolean
@@ -7023,6 +7104,15 @@ spec:
                           secretName:
                             type: string
                         type: object
+                    type: object
+                  applicationCredential:
+                    properties:
+                      enabled:
+                        type: boolean
+                      expirationDays:
+                        type: integer
+                      gracePeriodDays:
+                        type: integer
                     type: object
                   enabled:
                     default: false
@@ -8023,6 +8113,15 @@ spec:
                             type: string
                         type: object
                     type: object
+                  applicationCredential:
+                    properties:
+                      enabled:
+                        type: boolean
+                      expirationDays:
+                        type: integer
+                      gracePeriodDays:
+                        type: integer
+                    type: object
                   enabled:
                     default: true
                     type: boolean
@@ -8820,6 +8919,15 @@ spec:
                           secretName:
                             type: string
                         type: object
+                    type: object
+                  applicationCredential:
+                    properties:
+                      enabled:
+                        type: boolean
+                      expirationDays:
+                        type: integer
+                      gracePeriodDays:
+                        type: integer
                     type: object
                   cellOverride:
                     additionalProperties:
@@ -9872,6 +9980,15 @@ spec:
                           secretName:
                             type: string
                         type: object
+                    type: object
+                  applicationCredential:
+                    properties:
+                      enabled:
+                        type: boolean
+                      expirationDays:
+                        type: integer
+                      gracePeriodDays:
+                        type: integer
                     type: object
                   enabled:
                     default: false
@@ -11238,6 +11355,15 @@ spec:
                           secretName:
                             type: string
                         type: object
+                    type: object
+                  applicationCredential:
+                    properties:
+                      enabled:
+                        type: boolean
+                      expirationDays:
+                        type: integer
+                      gracePeriodDays:
+                        type: integer
                     type: object
                   enabled:
                     default: true
@@ -15686,6 +15812,15 @@ spec:
                 type: string
               swift:
                 properties:
+                  applicationCredential:
+                    properties:
+                      enabled:
+                        type: boolean
+                      expirationDays:
+                        type: integer
+                      gracePeriodDays:
+                        type: integer
+                    type: object
                   enabled:
                     default: true
                     type: boolean
@@ -16297,6 +16432,15 @@ spec:
                           secretName:
                             type: string
                         type: object
+                    type: object
+                  applicationCredential:
+                    properties:
+                      enabled:
+                        type: boolean
+                      expirationDays:
+                        type: integer
+                      gracePeriodDays:
+                        type: integer
                     type: object
                   enabled:
                     default: true
