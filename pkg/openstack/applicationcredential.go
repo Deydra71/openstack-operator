@@ -3,11 +3,14 @@ package openstack
 import (
 	"context"
 	"fmt"
+	"net/url"
+	"path"
 
 	keystonev1 "github.com/openstack-k8s-operators/keystone-operator/api/v1beta1"
 	"github.com/openstack-k8s-operators/lib-common/modules/common/helper"
 	corev1beta1 "github.com/openstack-k8s-operators/openstack-operator/apis/core/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
@@ -134,9 +137,28 @@ func ReconcileApplicationCredentials(
 			acObj.Spec.Unrestricted = *effective.Unrestricted
 
 			// always limit to "identity /auth/tokens POST" for only keystone auth now
+			var ks keystonev1.KeystoneAPI
+			if err := helper.GetClient().Get(ctx,
+				types.NamespacedName{Namespace: instance.Namespace, Name: "keystone"},
+				&ks,
+			); err != nil {
+				return fmt.Errorf("cannot read KeystoneAPI: %w", err)
+			}
+
+			baseURL := ks.Status.APIEndpoints["internal"]
+
+			// parse the endpoint URL
+			u, err := url.Parse(baseURL)
+			if err != nil {
+				return fmt.Errorf("invalid keystone URL %q: %w", baseURL, err)
+			}
+
+			rel := &url.URL{Path: path.Join(u.Path, "auth", "tokens")}
+			full := u.ResolveReference(rel)
+			// full.Path guarantees to start with /
 			acObj.Spec.AccessRules = []keystonev1.ACRule{{
 				Service: "identity",
-				Path:    "/auth/tokens",
+				Path:    full.Path, // e.g. "/v3/auth/tokens" or "/auth/tokens"
 				Method:  "POST",
 			}}
 
