@@ -880,7 +880,7 @@ type ApplicationCredentialSection struct {
 	GracePeriodDays *int `json:"gracePeriodDays,omitempty"`
 
 	// +kubebuilder:validation:Optional
-	// +kubebuilder:default={"admin","service"}
+	// +kubebuilder:default={"service"}
 	// +kubebuilder:validation:MinItems=1
 	// Roles to assign to the ApplicationCredential
 	Roles []string `json:"roles,omitempty"`

@@ -155,10 +155,9 @@ func ReconcileApplicationCredentials(
 
 			rel := &url.URL{Path: path.Join(u.Path, "auth", "tokens")}
 			full := u.ResolveReference(rel)
-			// full.Path guarantees to start with /
 			acObj.Spec.AccessRules = []keystonev1.ACRule{{
 				Service: "identity",
-				Path:    full.Path, // e.g. "/v3/auth/tokens" or "/auth/tokens"
+				Path:    full.Path, // /v3/auth/tokens or /auth/tokens
 				Method:  "POST",
 			}}
 
