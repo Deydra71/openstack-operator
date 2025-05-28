@@ -149,6 +149,12 @@ const (
 
 	// OpenStackControlPlaneInstanceHaCMReadyCondition Status=True condition which indicates if InstanceHa CM is ready
 	OpenStackControlPlaneInstanceHaCMReadyCondition condition.Type = "OpenStackControlPlaneInstanceHaCMReadyCondition"
+
+	// OpenStackControlPlaneCertCleanupReadyCondition Status=True condition which indicates global certification cleanup is Ready
+	OpenStackControlPlaneCertCleanupReadyCondition condition.Type = "OpenStackControlPlaneCertCleanupReadyCondition"
+
+	// OpenStackControlPlaneOpenStackVersionInitializationReadyCondition Status=True condition which indicates if OpenStackVersion is initialized
+	OpenStackControlPlaneOpenStackVersionInitializationReadyCondition condition.Type = "OpenStackControlPlaneOpenStackVersionInitializationReadyCondition"
 )
 
 // Common Messages used by API objects.
@@ -279,6 +285,9 @@ const (
 
 	// OpenStackControlPlaneNovaReadyErrorMessage
 	OpenStackControlPlaneNovaReadyErrorMessage = "OpenStackControlPlane Nova error occured %s"
+
+	// OpenStackControlPlaneCertCleanupReadyErrorMessage
+	OpenStackControlPlaneCertCleanupReadyErrorMessage = "OpenStackControlPlane Cert cleanup error occured %s"
 
 	// OpenStackControlPlaneHeatReadyInitMessage
 	OpenStackControlPlaneHeatReadyInitMessage = "OpenStackControlPlane Heat not started"
@@ -465,6 +474,18 @@ const (
 
 	// OpenStackControlPlaneInstanceHaCMReadyMessage
 	OpenStackControlPlaneInstanceHaCMReadyMessage = "OpenStackControlPlane InstanceHa CM is available"
+
+	// OpenStackControlPlaneOpenStackVersionInitializationReadyInitMessage
+	OpenStackControlPlaneOpenStackVersionInitializationReadyInitMessage = "OpenStackControlPlane OpenStackVersion initialization not started"
+
+	// OpenStackControlPlaneOpenStackVersionInitializationReadyMessage
+	OpenStackControlPlaneOpenStackVersionInitializationReadyMessage = "OpenStackControlPlane OpenStackVersion initialized"
+
+	// OpenStackControlPlaneOpenStackVersionInitializationReadyRunningMessage
+	OpenStackControlPlaneOpenStackVersionInitializationReadyRunningMessage = "OpenStackControlPlane OpenStackVersion initialization in progress"
+
+	// OpenStackControlPlaneOpenStackVersionInitializationReadyErrorMessage
+	OpenStackControlPlaneOpenStackVersionInitializationReadyErrorMessage = "OpenStackControlPlane OpenStackVersion initialization error occured %s"
 )
 
 // Version Conditions used by to drive minor updates

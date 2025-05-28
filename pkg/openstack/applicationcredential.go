@@ -3,14 +3,11 @@ package openstack
 import (
 	"context"
 	"fmt"
-	"net/url"
-	"path"
 
 	keystonev1 "github.com/openstack-k8s-operators/keystone-operator/api/v1beta1"
 	"github.com/openstack-k8s-operators/lib-common/modules/common/helper"
 	corev1beta1 "github.com/openstack-k8s-operators/openstack-operator/apis/core/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
@@ -41,6 +38,10 @@ func mergeAppCred(
 		if svc.Unrestricted != nil {
 			out.Unrestricted = svc.Unrestricted
 		}
+		// only override AccessRules if user set them
+		if len(svc.AccessRules) > 0 {
+			out.AccessRules = svc.AccessRules
+		}
 	}
 
 	return out
@@ -60,7 +61,7 @@ func ReconcileApplicationCredentials(
 	if !instance.Spec.ApplicationCredential.Enabled {
 		log.Info("Global AC disabled; deleting per-service AC CRs")
 		for _, svc := range []string{"glance", "nova", "swift", "ceilometer", "barbican", "cinder", "placement", "neutron"} {
-			ac := &keystonev1.ApplicationCredential{
+			ac := &keystonev1.KeystoneApplicationCredential{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      fmt.Sprintf("ac-%s", svc),
 					Namespace: instance.Namespace,
@@ -110,7 +111,7 @@ func ReconcileApplicationCredentials(
 	// Loop, CreateOrPatch or delete each AC CR:
 	for _, svc := range svcs {
 		acName := fmt.Sprintf("ac-%s", svc.Key)
-		acObj := &keystonev1.ApplicationCredential{
+		acObj := &keystonev1.KeystoneApplicationCredential{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      acName,
 				Namespace: instance.Namespace,
@@ -136,30 +137,17 @@ func ReconcileApplicationCredentials(
 			acObj.Spec.Roles = effective.Roles
 			acObj.Spec.Unrestricted = *effective.Unrestricted
 
-			// always limit to "identity /auth/tokens POST" for only keystone auth now
-			var ks keystonev1.KeystoneAPI
-			if err := helper.GetClient().Get(ctx,
-				types.NamespacedName{Namespace: instance.Namespace, Name: "keystone"},
-				&ks,
-			); err != nil {
-				return fmt.Errorf("cannot read KeystoneAPI: %w", err)
+			if len(effective.AccessRules) > 0 {
+				kr := make([]keystonev1.ACRule, 0, len(effective.AccessRules))
+				for _, r := range effective.AccessRules {
+					kr = append(kr, keystonev1.ACRule{
+						Service: r.Service,
+						Path:    r.Path,
+						Method:  r.Method,
+					})
+				}
+				acObj.Spec.AccessRules = kr
 			}
-
-			baseURL := ks.Status.APIEndpoints["internal"]
-
-			// parse the endpoint URL
-			u, err := url.Parse(baseURL)
-			if err != nil {
-				return fmt.Errorf("invalid keystone URL %q: %w", baseURL, err)
-			}
-
-			rel := &url.URL{Path: path.Join(u.Path, "auth", "tokens")}
-			full := u.ResolveReference(rel)
-			acObj.Spec.AccessRules = []keystonev1.ACRule{{
-				Service: "identity",
-				Path:    full.Path, // /v3/auth/tokens or /auth/tokens
-				Method:  "POST",
-			}}
 
 			return controllerutil.SetControllerReference(
 				helper.GetBeforeObject(), acObj, helper.GetScheme(),

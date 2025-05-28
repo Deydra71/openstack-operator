@@ -495,26 +495,6 @@ rules:
 - apiGroups:
   - keystone.openstack.org
   resources:
-  - applicationcredentials
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - keystone.openstack.org
-  resources:
-  - applicationcredentials/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - keystone.openstack.org
-  resources:
   - keystoneapis
   verbs:
   - create
@@ -524,6 +504,26 @@ rules:
   - patch
   - update
   - watch
+- apiGroups:
+  - keystone.openstack.org
+  resources:
+  - keystoneapplicationcredentials
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - keystone.openstack.org
+  resources:
+  - keystoneapplicationcredentials/status
+  verbs:
+  - get
+  - patch
+  - update
 - apiGroups:
   - machineconfiguration.openshift.io
   resources:

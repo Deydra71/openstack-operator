@@ -889,6 +889,12 @@ type ApplicationCredentialSection struct {
 	// +kubebuilder:default=false
 	// Whether the AC should be unrestricted
 	Unrestricted *bool `json:"unrestricted,omitempty"`
+
+	// AccessRules lets supply a custom list of rules
+	// If unset, no accessRules field is emitted
+	// +kubebuilder:validation:Optional
+	// +listType=atomic
+	AccessRules []ACRule `json:"accessRules,omitempty"`
 }
 
 // +kubebuilder:validation:XValidation:rule="!(has(self.expirationDays) && has(self.gracePeriodDays)) || self.gracePeriodDays < self.expirationDays",message="gracePeriodDays must be smaller than expirationDays"
@@ -913,6 +919,25 @@ type ServiceAppCredSection struct {
 	// +kubebuilder:validation:Optional
 	// Whether the AC should be unrestricted
 	Unrestricted *bool `json:"unrestricted,omitempty"`
+
+	// AccessRules lets the service override either the global rules
+	// +kubebuilder:validation:Optional
+	// +listType=atomic
+	AccessRules []ACRule `json:"accessRules,omitempty"`
+}
+
+// ACRule describes a single access rule for an ApplicationCredential
+// +k8s:openapi-gen=true
+type ACRule struct {
+	// Service is the name of the service to target (e.g. "identity").
+	// +kubebuilder:validation:Required
+	Service string `json:"service"`
+	// Path is the HTTP path (e.g. "/v3/auth/tokens").
+	// +kubebuilder:validation:Required
+	Path string `json:"path"`
+	// Method is the HTTP method to allow (e.g. "POST").
+	// +kubebuilder:validation:Required
+	Method string `json:"method"`
 }
 
 // OpenStackControlPlaneStatus defines the observed state of OpenStackControlPlane
@@ -1029,6 +1054,7 @@ func (instance *OpenStackControlPlane) InitConditions() {
 		condition.UnknownCondition(OpenStackControlPlaneBarbicanReadyCondition, condition.InitReason, OpenStackControlPlaneBarbicanReadyInitMessage),
 		condition.UnknownCondition(OpenStackControlPlaneRedisReadyCondition, condition.InitReason, OpenStackControlPlaneRedisReadyInitMessage),
 		condition.UnknownCondition(OpenStackControlPlaneCAReadyCondition, condition.InitReason, OpenStackControlPlaneCAReadyInitMessage),
+		condition.UnknownCondition(OpenStackControlPlaneOpenStackVersionInitializationReadyCondition, condition.InitReason, OpenStackControlPlaneOpenStackVersionInitializationReadyInitMessage),
 
 		// Also add the overall status condition as Unknown
 		condition.UnknownCondition(condition.ReadyCondition, condition.InitReason, condition.ReadyInitMessage),

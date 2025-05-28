@@ -183,7 +183,7 @@ rules:
 - apiGroups:
     - keystone.openstack.org
   resources:
-    - applicationcredentials
+    - keystoneapplicationcredentials
   verbs:
     - create
     - delete
@@ -195,14 +195,14 @@ rules:
 - apiGroups:
     - keystone.openstack.org
   resources:
-    - applicationcredentials/finalizers
+    - keystoneapplicationcredentials/finalizers
   verbs:
     - patch
     - update
 - apiGroups:
     - keystone.openstack.org
   resources:
-    - applicationcredentials/status
+    - keystoneapplicationcredentials/status
   verbs:
     - get
     - patch

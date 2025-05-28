@@ -45,9 +45,11 @@ import (
 	"github.com/openstack-k8s-operators/lib-common/modules/common/service"
 	"github.com/openstack-k8s-operators/lib-common/modules/common/tls"
 	manilav1 "github.com/openstack-k8s-operators/manila-operator/api/v1beta1"
+	novav1 "github.com/openstack-k8s-operators/nova-operator/api/v1beta1"
 	clientv1 "github.com/openstack-k8s-operators/openstack-operator/apis/client/v1beta1"
 	corev1 "github.com/openstack-k8s-operators/openstack-operator/apis/core/v1beta1"
 	ovnv1 "github.com/openstack-k8s-operators/ovn-operator/api/v1beta1"
+	placementv1 "github.com/openstack-k8s-operators/placement-operator/api/v1beta1"
 )
 
 var _ = Describe("OpenStackOperator controller", func() {
@@ -1830,6 +1832,78 @@ var _ = Describe("OpenStackOperator controller", func() {
 		})
 	})
 
+	When("OpenStackControlplane instance is created and an OpenStackVersion already exists with an arbitrary name", func() {
+		BeforeEach(func() {
+			DeferCleanup(
+				th.DeleteInstance,
+				CreateOpenStackVersion(names.OpenStackVersionName2, GetDefaultOpenStackVersionSpec()),
+			)
+		})
+
+		It("rejects the OpenStackControlPlane if its name is not that same as the OpenStackVersion's name", func() {
+			raw := map[string]interface{}{
+				"apiVersion": "core.openstack.org/v1beta1",
+				"kind":       "OpenStackControlPlane",
+				"metadata": map[string]interface{}{
+					"name":      names.OpenStackControlplaneName.Name,
+					"namespace": names.Namespace,
+				},
+				"spec": GetDefaultOpenStackControlPlaneSpec(),
+			}
+
+			unstructuredObj := &unstructured.Unstructured{Object: raw}
+			_, err := controllerutil.CreateOrPatch(
+				th.Ctx, th.K8sClient, unstructuredObj, func() error { return nil })
+			Expect(err).Should(HaveOccurred())
+			var statusError *k8s_errors.StatusError
+			Expect(errors.As(err, &statusError)).To(BeTrue())
+			Expect(statusError.ErrStatus.Details.Kind).To(Equal("OpenStackControlPlane"))
+			Expect(statusError.ErrStatus.Message).To(
+				ContainSubstring(
+					"must have same name as the existing"),
+			)
+
+			// we remove the finalizer as this is needed when the OpenStackControlplane
+			// does not create the OpenStackVersion itself
+			DeferCleanup(
+				OpenStackVersionRemoveFinalizer,
+				ctx,
+				names.OpenStackVersionName2,
+			)
+		})
+
+		It("accepts the OpenStackControlPlane if its name is the same as the OpenStackVersion's name", func() {
+			raw := map[string]interface{}{
+				"apiVersion": "core.openstack.org/v1beta1",
+				"kind":       "OpenStackControlPlane",
+				"metadata": map[string]interface{}{
+					"name":      names.OpenStackVersionName2.Name,
+					"namespace": names.Namespace,
+				},
+				"spec": GetDefaultOpenStackControlPlaneSpec(),
+			}
+
+			unstructuredObj := &unstructured.Unstructured{Object: raw}
+			_, err := controllerutil.CreateOrPatch(
+				th.Ctx, th.K8sClient, unstructuredObj, func() error { return nil })
+			Expect(err).ShouldNot(HaveOccurred())
+
+			openStackControlPlane := &corev1.OpenStackControlPlane{}
+			openStackControlPlane.ObjectMeta.Namespace = names.Namespace
+			openStackControlPlane.Name = names.OpenStackVersionName2.Name
+			err = k8sClient.Delete(ctx, openStackControlPlane)
+			Expect(err).ShouldNot(HaveOccurred())
+
+			// we remove the finalizer as this is needed when the OpenStackControlplane
+			// does not create the OpenStackVersion itself
+			DeferCleanup(
+				OpenStackVersionRemoveFinalizer,
+				ctx,
+				names.OpenStackVersionName2,
+			)
+		})
+	})
+
 	When("An OpenStackControlplane instance is created with nodeSelector", func() {
 		BeforeEach(func() {
 			spec := GetDefaultOpenStackControlPlaneSpec()
@@ -2882,7 +2956,7 @@ var _ = Describe("OpenStackOperator Webhook", func() {
 	})
 })
 
-var _ = Describe("OpenStackOperator controller galera and rabbitmq", func() {
+var _ = Describe("OpenStackOperator controller nova cell deletion", func() {
 	BeforeEach(func() {
 		// lib-common uses OPERATOR_TEMPLATES env var to locate the "templates"
 		// directory of the operator. We need to set them othervise lib-common
@@ -2915,6 +2989,14 @@ var _ = Describe("OpenStackOperator controller galera and rabbitmq", func() {
 			th.CreateCertSecret(names.RabbitMQCertName)
 			th.CreateCertSecret(names.RabbitMQCell1CertName)
 
+			// create cert secrets for ovn instance
+			DeferCleanup(k8sClient.Delete, ctx, th.CreateCertSecret(names.OVNNorthdCertName))
+			DeferCleanup(k8sClient.Delete, ctx, th.CreateCertSecret(names.OVNControllerCertName))
+			DeferCleanup(k8sClient.Delete, ctx, th.CreateCertSecret(names.NeutronOVNCertName))
+
+			// create cert secrets for memcached instance
+			DeferCleanup(k8sClient.Delete, ctx, th.CreateCertSecret(names.MemcachedCertName))
+
 			extGalera := CreateGaleraConfig(namespace, GetDefaultGaleraSpec())
 			extGaleraName.Name = extGalera.GetName()
 			extGaleraName.Namespace = extGalera.GetNamespace()
@@ -2933,6 +3015,13 @@ var _ = Describe("OpenStackOperator controller galera and rabbitmq", func() {
 				th.DeleteInstance,
 				CreateOpenStackControlPlane(names.OpenStackControlplaneName, spec),
 			)
+
+			// enable TLS
+			Eventually(func(g Gomega) {
+				OSCtlplane := GetOpenStackControlPlane(names.OpenStackControlplaneName)
+				OSCtlplane.Spec.TLS.PodLevel.Enabled = true
+				g.Expect(k8sClient.Update(ctx, OSCtlplane)).Should(Succeed())
+			}, timeout, interval).Should(Succeed())
 		})
 
 		It("cell1 galera should be deleted from CR", func() {
@@ -3015,13 +3104,6 @@ var _ = Describe("OpenStackOperator controller galera and rabbitmq", func() {
 			var secretName types.NamespacedName
 			var certName types.NamespacedName
 
-			// enable TLS
-			Eventually(func(g Gomega) {
-				OSCtlplane = GetOpenStackControlPlane(names.OpenStackControlplaneName)
-				OSCtlplane.Spec.TLS.PodLevel.Enabled = true
-				g.Expect(k8sClient.Update(ctx, OSCtlplane)).Should(Succeed())
-			}, timeout, interval).Should(Succeed())
-
 			// rabbitmq exists
 			Eventually(func(g Gomega) {
 				rabbitmq := GetRabbitMQCluster(names.RabbitMQCell1Name)
@@ -3086,6 +3168,133 @@ var _ = Describe("OpenStackOperator controller galera and rabbitmq", func() {
 
 		})
 
+		When("The novncproxy k8s service is created for cell1", func() {
+			/*
+				- generate certs and routes for novncproxy
+					- enable nova and dependencies
+					- create novncproxy service
+				- find and verify certs and routes are created
+				- reproduce cell1 deletion
+					- remove cell1 from oscp CR
+					- delete novncproxy service
+				- verify if there are no residue certs and routes
+			*/
+
+			BeforeEach(func() {
+				// enable Nova and dependencies
+				Eventually(func(g Gomega) {
+					OSCtlplane := GetOpenStackControlPlane(names.OpenStackControlplaneName)
+					OSCtlplane.Spec.Nova.Enabled = true
+					OSCtlplane.Spec.Nova.Template = &novav1.NovaSpecCore{}
+					// enable "Galera, Memcached, RabbitMQ, Keystone, Glance, Neutron, Placement" too
+
+					OSCtlplane.Spec.Keystone.Enabled = true
+					OSCtlplane.Spec.Glance.Enabled = true
+					OSCtlplane.Spec.Neutron.Enabled = true
+					OSCtlplane.Spec.Placement.Enabled = true
+
+					if OSCtlplane.Spec.Placement.Template == nil {
+						OSCtlplane.Spec.Placement.Template = &placementv1.PlacementAPISpecCore{}
+						OSCtlplane.Spec.Placement.Template.APITimeout = 10
+					}
+					g.Expect(k8sClient.Update(ctx, OSCtlplane)).Should(Succeed())
+				}, timeout, interval).Should(Succeed())
+
+				// nova-novncproxy-cell1-public
+				novncProxyPublicSvcName := types.NamespacedName{
+					Name:      "nova-novncproxy-cell1-public",
+					Namespace: namespace}
+
+				th.CreateService(
+					novncProxyPublicSvcName,
+					map[string]string{
+						"osctlplane-service": "nova-novncproxy",
+						"osctlplane":         "",
+						"cell":               "cell1",
+					},
+					k8s_corev1.ServiceSpec{
+						Ports: []k8s_corev1.ServicePort{
+							{
+								Name:     "nova-novncproxy-cell1-public",
+								Port:     int32(6080),
+								Protocol: k8s_corev1.ProtocolTCP,
+							},
+						},
+					})
+
+				novncProxySvc := th.GetService(novncProxyPublicSvcName)
+
+				if novncProxySvc.Annotations == nil {
+					novncProxySvc.Annotations = map[string]string{}
+				}
+
+				novncProxySvc.Annotations[service.AnnotationIngressCreateKey] = "true"
+				novncProxySvc.Annotations[service.AnnotationEndpointKey] = "public"
+
+				Expect(th.K8sClient.Status().Update(th.Ctx, novncProxySvc)).To(Succeed())
+				// novncProxySvc = th.GetService(novncProxyPublicSvcName)
+				// logger.Info("", "XXX novncproxy labels", novncProxySvc.Labels)
+
+				// vnproxy certs
+				DeferCleanup(k8sClient.Delete, ctx, th.CreateCertSecret(names.NoVNCProxyCell1CertPublicRouteName))
+				DeferCleanup(k8sClient.Delete, ctx, th.CreateCertSecret(names.NoVNCProxyCell1CertPublicSvcName))
+				DeferCleanup(k8sClient.Delete, ctx, th.CreateCertSecret(names.NoVNCProxyCell1CertVencryptName))
+
+			})
+
+			It("novncproxy certs and routes should be deleted on respective cell deletion", func() {
+				certNames := []types.NamespacedName{
+					{Name: "nova-novncproxy-cell1-public-route", Namespace: namespace},
+					{Name: "nova-novncproxy-cell1-public-svc", Namespace: namespace},
+					{Name: "nova-novncproxy-cell1-vencrypt", Namespace: namespace},
+				}
+
+				// verify all certs for novncproxy exists
+				Eventually(func(g Gomega) {
+					for _, certName := range certNames {
+						cert := crtmgr.GetCert(certName)
+						g.Expect(cert).NotTo(BeNil())
+					}
+				}, timeout, interval).Should(Succeed())
+
+				// verify route is present
+				Eventually(func(g Gomega) {
+					novncproxyRouteName := types.NamespacedName{Name: "nova-novncproxy-cell1-public", Namespace: namespace}
+					novncproxyRoute := &routev1.Route{}
+
+					g.Expect(th.K8sClient.Get(th.Ctx, novncproxyRouteName, novncproxyRoute)).Should(Succeed())
+					g.Expect(novncproxyRoute.Spec.TLS.Certificate).Should(Not(BeEmpty()))
+					g.Expect(novncproxyRoute.Spec.TLS.Key).Should(Not(BeEmpty()))
+					g.Expect(novncproxyRoute.Spec.TLS.CACertificate).Should(Not(BeEmpty()))
+				}, timeout, interval).Should(Succeed())
+
+				// remove from oscp
+				Eventually(func(g Gomega) {
+					OSCtlplane := GetOpenStackControlPlane(names.OpenStackControlplaneName)
+					delete(OSCtlplane.Spec.Nova.Template.CellTemplates, "cell1")
+					g.Expect(k8sClient.Update(ctx, OSCtlplane)).Should(Succeed())
+				}, timeout, interval).Should(Succeed())
+
+				th.DeleteService(
+					types.NamespacedName{
+						Name:      "nova-novncproxy-cell1-public",
+						Namespace: namespace,
+					})
+
+				// verify all certs for novncproxy
+				for _, certName := range certNames {
+					crtmgr.AssertCertDoesNotExist(certName)
+				}
+
+				// verify route for novncproxy
+				novncproxyRouteName := types.NamespacedName{Name: "nova-novncproxy-cell1-public", Namespace: namespace}
+				novncproxyRoute := &routev1.Route{}
+				Eventually(func(g Gomega) {
+					err := th.K8sClient.Get(th.Ctx, novncproxyRouteName, novncproxyRoute)
+					g.Expect(k8s_errors.IsNotFound(err)).To(BeTrue())
+				}, timeout, interval).Should(Succeed())
+			})
+		})
 	})
 })
 
