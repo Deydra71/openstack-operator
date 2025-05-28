@@ -49,6 +49,10 @@ spec:
       - description: TLS - overrides tls parameters for public endpoint
         displayName: TLS
         path: barbican.apiOverride.tls
+      - description: ApplicationCredential allows service-specific overrides of the
+          global AC configuration.
+        displayName: Application Credential
+        path: barbican.applicationCredential
       - description: Enabled - Whether Barbican service should be deployed and managed
         displayName: Enabled
         path: barbican.enabled

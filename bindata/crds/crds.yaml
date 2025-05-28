@@ -206,6 +206,22 @@ spec:
             properties:
               applicationCredential:
                 properties:
+                  accessRules:
+                    items:
+                      properties:
+                        method:
+                          type: string
+                        path:
+                          type: string
+                        service:
+                          type: string
+                      required:
+                      - method
+                      - path
+                      - service
+                      type: object
+                    type: array
+                    x-kubernetes-list-type: atomic
                   enabled:
                     default: false
                     type: boolean
@@ -219,7 +235,6 @@ spec:
                     type: integer
                   roles:
                     default:
-                    - admin
                     - service
                     items:
                       type: string
@@ -363,6 +378,22 @@ spec:
                       enabled: false
                     nullable: true
                     properties:
+                      accessRules:
+                        items:
+                          properties:
+                            method:
+                              type: string
+                            path:
+                              type: string
+                            service:
+                              type: string
+                          required:
+                          - method
+                          - path
+                          - service
+                          type: object
+                        type: array
+                        x-kubernetes-list-type: atomic
                       enabled:
                         default: false
                         type: boolean
@@ -890,6 +921,22 @@ spec:
                       enabled: false
                     nullable: true
                     properties:
+                      accessRules:
+                        items:
+                          properties:
+                            method:
+                              type: string
+                            path:
+                              type: string
+                            service:
+                              type: string
+                          required:
+                          - method
+                          - path
+                          - service
+                          type: object
+                        type: array
+                        x-kubernetes-list-type: atomic
                       enabled:
                         default: false
                         type: boolean
@@ -3694,6 +3741,22 @@ spec:
                       enabled: false
                     nullable: true
                     properties:
+                      accessRules:
+                        items:
+                          properties:
+                            method:
+                              type: string
+                            path:
+                              type: string
+                            service:
+                              type: string
+                          required:
+                          - method
+                          - path
+                          - service
+                          type: object
+                        type: array
+                        x-kubernetes-list-type: atomic
                       enabled:
                         default: false
                         type: boolean
@@ -9098,6 +9161,22 @@ spec:
                       enabled: false
                     nullable: true
                     properties:
+                      accessRules:
+                        items:
+                          properties:
+                            method:
+                              type: string
+                            path:
+                              type: string
+                            service:
+                              type: string
+                          required:
+                          - method
+                          - path
+                          - service
+                          type: object
+                        type: array
+                        x-kubernetes-list-type: atomic
                       enabled:
                         default: false
                         type: boolean
@@ -9921,6 +10000,22 @@ spec:
                       enabled: false
                     nullable: true
                     properties:
+                      accessRules:
+                        items:
+                          properties:
+                            method:
+                              type: string
+                            path:
+                              type: string
+                            service:
+                              type: string
+                          required:
+                          - method
+                          - path
+                          - service
+                          type: object
+                        type: array
+                        x-kubernetes-list-type: atomic
                       enabled:
                         default: false
                         type: boolean
@@ -12381,6 +12476,22 @@ spec:
                       enabled: false
                     nullable: true
                     properties:
+                      accessRules:
+                        items:
+                          properties:
+                            method:
+                              type: string
+                            path:
+                              type: string
+                            service:
+                              type: string
+                          required:
+                          - method
+                          - path
+                          - service
+                          type: object
+                        type: array
+                        x-kubernetes-list-type: atomic
                       enabled:
                         default: false
                         type: boolean
@@ -16859,6 +16970,22 @@ spec:
                       enabled: false
                     nullable: true
                     properties:
+                      accessRules:
+                        items:
+                          properties:
+                            method:
+                              type: string
+                            path:
+                              type: string
+                            service:
+                              type: string
+                          required:
+                          - method
+                          - path
+                          - service
+                          type: object
+                        type: array
+                        x-kubernetes-list-type: atomic
                       enabled:
                         default: false
                         type: boolean
@@ -17496,6 +17623,22 @@ spec:
                       enabled: false
                     nullable: true
                     properties:
+                      accessRules:
+                        items:
+                          properties:
+                            method:
+                              type: string
+                            path:
+                              type: string
+                            service:
+                              type: string
+                          required:
+                          - method
+                          - path
+                          - service
+                          type: object
+                        type: array
+                        x-kubernetes-list-type: atomic
                       enabled:
                         default: false
                         type: boolean
