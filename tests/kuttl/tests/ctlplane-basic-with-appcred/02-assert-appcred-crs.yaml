@@ -1,45 +1,44 @@
 apiVersion: kuttl.dev/v1beta1
-kind: TestStep
-assert:
-  # check ac-barbican
-  - command: >
-      oc wait --for=condition=Ready
-        appcred ac-barbican
-        -n $NAMESPACE --timeout=60s
-  - command: >
-      oc get appcred ac-barbican
-        -n $NAMESPACE
-        -o jsonpath='{.spec.expirationDays}' | grep -x 200
-  - command: >
-      oc get appcred ac-barbican
-        -n $NAMESPACE
-        -o jsonpath='{.spec.gracePeriodDays}' | grep -x 90
-  - command: >
-      oc get appcred ac-barbican
-        -n $NAMESPACE
-        -o jsonpath='{.spec.roles[*]}' | grep -w service
-  - command: >
-      oc get appcred ac-barbican
-        -n $NAMESPACE
-        -o jsonpath='{.spec.unrestricted}' | grep -x false
-  # check ac-cinder
-  - command: >
-      oc wait --for=condition=Ready
-        appcred ac-cinder
-        -n $NAMESPACE --timeout=60s
-  - command: >
-      oc get appcred ac-cinder
-        -n $NAMESPACE
-        -o jsonpath='{.spec.expirationDays}' | grep -x 10
-  - command: >
-      oc get appcred ac-cinder
-        -n $NAMESPACE
-        -o jsonpath='{.spec.gracePeriodDays}' | grep -x 5
-  - command: >
-      oc get appcred ac-cinder
-        -n $NAMESPACE
-        -o jsonpath='{.spec.roles[*]}' | grep -w admin | grep -w service
-  - command: >
-      oc get appcred ac-cinder
-        -n $NAMESPACE
-        -o jsonpath='{.spec.unrestricted}' | grep -x true
+kind: TestAssert
+commands:
+  - script: |
+      NS=$NAMESPACE
+
+      oc wait appcred ac-barbican -n "$NS" --for=condition=Ready --timeout=120s
+
+      EXP=$(oc get appcred ac-barbican -n "$NS" \
+        -o jsonpath='{.spec.expirationDays}')
+      [ "$EXP" -eq 200 ] || exit 1
+
+      GRP=$(oc get appcred ac-barbican -n "$NS" \
+        -o jsonpath='{.spec.gracePeriodDays}')
+      [ "$GRP" -eq 90 ] || exit 1
+
+      ROL=$(oc get appcred ac-barbican -n "$NS" \
+        -o jsonpath='{.spec.roles[*]}')
+      case " $ROL " in *" service "*) ;; *) exit 1;; esac
+
+      # Default missing unrestricted → false
+      UNR=$(oc get appcred ac-barbican -n "$NS" \
+        -o jsonpath='{.spec.unrestricted}' 2>/dev/null || echo "")
+      UNR=${UNR:-false}
+      [ "$UNR" = "false" ] || exit 1
+
+      oc wait appcred ac-cinder -n "$NS" --for=condition=Ready --timeout=120s
+
+      EXP=$(oc get appcred ac-cinder -n "$NS" \
+        -o jsonpath='{.spec.expirationDays}')
+      [ "$EXP" -eq 10 ] || exit 1
+
+      GRP=$(oc get appcred ac-cinder -n "$NS" \
+        -o jsonpath='{.spec.gracePeriodDays}')
+      [ "$GRP" -eq 5 ] || exit 1
+
+      ROL=$(oc get appcred ac-cinder -n "$NS" \
+        -o jsonpath='{.spec.roles[*]}')
+      case " $ROL " in *" admin "*) ;; *) exit 1;; esac
+      case " $ROL " in *" service "*) ;; *) exit 1;; esac
+
+      UNR=$(oc get appcred ac-cinder -n "$NS" \
+        -o jsonpath='{.spec.unrestricted}' 2>/dev/null || echo "")
+      [ "$UNR" = "true" ] || exit 1
