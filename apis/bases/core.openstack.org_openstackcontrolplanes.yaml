@@ -7535,6 +7535,8 @@ spec:
                           - extraVol
                           type: object
                         type: array
+                      federatedRealmConfig:
+                        type: string
                       fernetMaxActiveKeys:
                         default: 5
                         format: int32
