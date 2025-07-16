@@ -3,7 +3,7 @@
 export OPENSTACK_RELEASE_VERSION=0.0.1-$(date +%s)
 export RELATED_IMAGE_OPENSTACK_CLIENT_IMAGE_URL_DEFAULT=quay.io/podified-antelope-centos9/openstack-openstackclient:current-podified
 export RELATED_IMAGE_RABBITMQ_IMAGE_URL_DEFAULT=quay.io/podified-antelope-centos9/openstack-rabbitmq:current-podified
-export RELATED_IMAGE_KEYSTONE_API_IMAGE_URL_DEFAULT=quay.io/podified-antelope-centos9/openstack-keystone:current-podified
+export RELATED_IMAGE_KEYSTONE_API_IMAGE_URL_DEFAULT=quay.io/rh-ee-vfisarov/openstack-keystone@sha256:3dfd66922e33d8a70f0ff054c5a50291dba6b705ab8f8af6096cc5a449f8540c
 export RELATED_IMAGE_MARIADB_IMAGE_URL_DEFAULT=quay.io/podified-antelope-centos9/openstack-mariadb:current-podified
 export RELATED_IMAGE_INFRA_MEMCACHED_IMAGE_URL_DEFAULT=quay.io/podified-antelope-centos9/openstack-memcached:current-podified
 export RELATED_IMAGE_INFRA_REDIS_IMAGE_URL_DEFAULT=quay.io/podified-antelope-centos9/openstack-redis:current-podified
