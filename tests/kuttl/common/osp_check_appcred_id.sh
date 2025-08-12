@@ -31,7 +31,7 @@ declare -A SERVICES=(
     # [nova]="/etc/nova/nova.conf|sts/nova-api:nova-api,sts/nova-cell0-conductor:nova-conductor,sts/nova-cell1-conductor:nova-conductor,sts/nova-metadata:nova-metadata,sts/nova-scheduler:nova-scheduler"
     # [neutron]="/etc/neutron/neutron.conf|deploy/neutron:neutron-server"
     # [placement]="/etc/placement/placement.conf|deploy/placement:placement-api"
-    # [swift]="/etc/swift/proxy-server.conf|deploy/swift-proxy:swift-proxy,sts/swift-storage:swift-storage"
+    [swift]="/etc/swift/proxy-server.conf|deploy/swift-proxy:swift-proxy,sts/swift-storage:swift-storage"
     # [ceilometer]="/etc/ceilometer/ceilometer.conf|sts/ceilometer:ceilometer-central"
 )
 

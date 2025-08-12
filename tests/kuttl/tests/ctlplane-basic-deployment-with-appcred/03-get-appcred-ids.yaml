@@ -11,5 +11,5 @@ commands:
         # bash -s < ../../common/osp_check_appcred_id.sh $NAMESPACE nova
         # bash -s < ../../common/osp_check_appcred_id.sh $NAMESPACE neutron
         # bash -s < ../../common/osp_check_appcred_id.sh $NAMESPACE placement
-        # bash -s < ../../common/osp_check_appcred_id.sh $NAMESPACE swift
+        bash -s < ../../common/osp_check_appcred_id.sh $NAMESPACE swift
         # bash -s < ../../common/osp_check_appcred_id.sh $NAMESPACE ceilometer
