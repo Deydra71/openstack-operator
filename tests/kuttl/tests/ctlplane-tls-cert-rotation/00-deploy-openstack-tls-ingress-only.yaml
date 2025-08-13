@@ -1,5 +1,0 @@
-apiVersion: kuttl.dev/v1beta1
-kind: TestStep
-commands:
-  - script: |
-      oc kustomize ../../../../config/samples/tls/tls_ingress | oc apply -n $NAMESPACE -f -

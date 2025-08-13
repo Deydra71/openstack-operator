@@ -22,3 +22,6 @@ spec:
         - admin
         - service
       unrestricted: true
+  swift:
+    applicationCredential:
+      enabled: true

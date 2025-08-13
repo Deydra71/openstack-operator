@@ -7736,8 +7736,6 @@ spec:
                         type: array
                       federatedRealmConfig:
                         type: string
-                      federationMountPath:
-                        type: string
                       fernetMaxActiveKeys:
                         default: 5
                         format: int32
@@ -13168,6 +13166,7 @@ spec:
                           enum:
                           - None
                           - Mirrored
+                          - Quorum
                           type: string
                         rabbitmq:
                           properties:

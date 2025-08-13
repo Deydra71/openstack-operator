@@ -18,14 +18,14 @@ require (
 	github.com/openstack-k8s-operators/glance-operator/api v0.6.1-0.20250729100433-91ed4d938ac9
 	github.com/openstack-k8s-operators/heat-operator/api v0.6.1-0.20250731132414-c8c893b2ad41
 	github.com/openstack-k8s-operators/horizon-operator/api v0.6.1-0.20250731055354-74f0a4b84a05
-	github.com/openstack-k8s-operators/infra-operator/apis v0.6.1-0.20250802211136-f5a38d83e342
+	github.com/openstack-k8s-operators/infra-operator/apis v0.6.1-0.20250909143828-e33d35ffd64f
 	github.com/openstack-k8s-operators/ironic-operator/api v0.6.1-0.20250802061337-bdfe2c691f2b
 	github.com/openstack-k8s-operators/keystone-operator/api v0.6.1-0.20250802061907-896a24e4fc36
 	github.com/openstack-k8s-operators/lib-common/modules/ansible v0.6.1-0.20250730071847-837b07f8d72f
 	github.com/openstack-k8s-operators/lib-common/modules/certmanager v0.6.1-0.20250730071847-837b07f8d72f
-	github.com/openstack-k8s-operators/lib-common/modules/common v0.6.1-0.20250730071847-837b07f8d72f
-	github.com/openstack-k8s-operators/lib-common/modules/storage v0.6.1-0.20250730071847-837b07f8d72f
-	github.com/openstack-k8s-operators/lib-common/modules/test v0.6.1-0.20250730071847-837b07f8d72f
+	github.com/openstack-k8s-operators/lib-common/modules/common v0.6.1-0.20250823121217-7e1cd2e3dd03
+	github.com/openstack-k8s-operators/lib-common/modules/storage v0.6.1-0.20250823121217-7e1cd2e3dd03
+	github.com/openstack-k8s-operators/lib-common/modules/test v0.6.1-0.20250823121217-7e1cd2e3dd03
 	github.com/openstack-k8s-operators/manila-operator/api v0.6.1-0.20250729102408-60c3ecfc462c
 	github.com/openstack-k8s-operators/mariadb-operator/api v0.6.1-0.20250727093444-2a55a4e57bd6
 	github.com/openstack-k8s-operators/neutron-operator/api v0.6.1-0.20250731075515-b87776989589
@@ -85,7 +85,7 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
-	github.com/openstack-k8s-operators/lib-common/modules/openstack v0.6.1-0.20250730071847-837b07f8d72f // indirect
+	github.com/openstack-k8s-operators/lib-common/modules/openstack v0.6.1-0.20250823121217-7e1cd2e3dd03 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/prometheus/client_golang v1.19.0 // indirect
 	github.com/prometheus/client_model v0.6.0 // indirect
@@ -129,8 +129,8 @@ replace github.com/openshift/api => github.com/openshift/api v0.0.0-202408300231
 // custom RabbitmqClusterSpecCore for OpenStackControlplane (v2.9.0_patches_tag_n)
 replace github.com/rabbitmq/cluster-operator/v2 => github.com/openstack-k8s-operators/rabbitmq-cluster-operator/v2 v2.6.1-0.20250717122149-12f70b7f3d8d //allow-merging
 
-replace github.com/openstack-k8s-operators/keystone-operator/api => github.com/Deydra71/keystone-operator/api v0.0.0-20250718124530-83b0609d1c8c
+replace github.com/openstack-k8s-operators/keystone-operator/api => github.com/Deydra71/keystone-operator/api v0.0.0-20250918081618-3b3cec0a5839
 
-replace github.com/openstack-k8s-operators/barbican-operator/api => github.com/Deydra71/barbican-operator/api v0.0.0-20250806122950-cf5f6cbff574
+replace github.com/openstack-k8s-operators/barbican-operator/api => github.com/Deydra71/barbican-operator/api v0.0.0-20250917121154-f70bfe92c8c2
 
 replace github.com/openstack-k8s-operators/swift-operator/api => github.com/Deydra71/swift-operator/api v0.0.0-20250812111334-3e45847b60d7
