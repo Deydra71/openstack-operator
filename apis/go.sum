@@ -1,3 +1,5 @@
+github.com/Deydra71/keystone-operator/api v0.0.0-20250904114209-130cc8bf2078 h1:l+oeiSW/PaciOcarlEQEcCXhDnfJb8Hq9rBhVxRPE8Q=
+github.com/Deydra71/keystone-operator/api v0.0.0-20250904114209-130cc8bf2078/go.mod h1:G6BkoPfgALryMlOZwIH036iSWUMiDJQAYL1lXuLyPZ0=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
 github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
 github.com/cert-manager/cert-manager v1.14.7 h1:C2L59sMGMdSpd8SPx5qfPAL7ejZaNxJBRd24S7Ws5Ek=
@@ -110,8 +112,6 @@ github.com/openstack-k8s-operators/infra-operator/apis v0.6.1-0.20250821143610-c
 github.com/openstack-k8s-operators/infra-operator/apis v0.6.1-0.20250821143610-c8ef7b9a21ec/go.mod h1:Dv8qpmBIQy3Jv/EyQnOyc0w61X8vyfxpjcIQONP5CwY=
 github.com/openstack-k8s-operators/ironic-operator/api v0.6.1-0.20250815193050-feadf3472002 h1:B00JghiduA2ItmtptItSRYhCxysT0aIkDaWQyGRpUno=
 github.com/openstack-k8s-operators/ironic-operator/api v0.6.1-0.20250815193050-feadf3472002/go.mod h1:B6LsM/f4MHzgoEOH2lQrEPyG5F3gmbhz4IyaUOAgj2o=
-github.com/openstack-k8s-operators/keystone-operator/api v0.6.1-0.20250811083324-e790d63f389f h1:Ivo4YKaH26B1lQlwKcolELCRGtEbmvbfJShBTVrCdQI=
-github.com/openstack-k8s-operators/keystone-operator/api v0.6.1-0.20250811083324-e790d63f389f/go.mod h1:H5iZOohoVOmZvIZPR5ep6z+jmfrpz25axOM6IXlXzNU=
 github.com/openstack-k8s-operators/lib-common/modules/common v0.6.1-0.20250823121217-7e1cd2e3dd03 h1:9VanDdvg1APf9B1nzGElLvWr6dM5GsSayMLSV/nJZnE=
 github.com/openstack-k8s-operators/lib-common/modules/common v0.6.1-0.20250823121217-7e1cd2e3dd03/go.mod h1:Z+rmtn3qhuPZfx2EDVmloUh2MkYbvDMgcpJneRYerS0=
 github.com/openstack-k8s-operators/lib-common/modules/openstack v0.6.1-0.20250730071847-837b07f8d72f h1:nGYLHcpM7EjiSzN4bmiLZbxty9u0k0Qzvkqn+1s1TF0=
