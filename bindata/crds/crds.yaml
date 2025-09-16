@@ -9597,6 +9597,8 @@ spec:
                         additionalProperties:
                           type: string
                         type: object
+                      notificationsBusInstance:
+                        type: string
                       override:
                         properties:
                           service:
@@ -13044,6 +13046,7 @@ spec:
                           enum:
                           - None
                           - Mirrored
+                          - Quorum
                           type: string
                         rabbitmq:
                           properties:
