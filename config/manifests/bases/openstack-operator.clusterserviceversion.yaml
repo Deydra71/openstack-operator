@@ -14,9 +14,9 @@ metadata:
     operatorframework.io/suggested-namespace: openstack-operators
     operators.openshift.io/valid-subscription: '["OpenShift Container Platform", "OpenShift
       Platform Plus"]'
-    operators.operatorframework.io/builder: operator-sdk-v1.41.0
+    operators.operatorframework.io/builder: operator-sdk-v1.31.0
     operators.operatorframework.io/internal-objects: '["openstackclients.client.openstack.org","openstackdataplaneservices.dataplane.openstack.org"]'
-    operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
+    operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
   name: openstack-operator.v0.0.0
   namespace: placeholder
 spec:
@@ -38,6 +38,9 @@ spec:
       kind: OpenStackControlPlane
       name: openstackcontrolplanes.core.openstack.org
       specDescriptors:
+      - description: ApplicationCredential - Parameters related to the ApplicationCredential
+        displayName: Application Credential
+        path: applicationCredential
       - description: Barbican - Parameters related to the Barbican service
         displayName: Barbican
         path: barbican
@@ -48,6 +51,10 @@ spec:
       - description: TLS - overrides tls parameters for public endpoint
         displayName: TLS
         path: barbican.apiOverride.tls
+      - description: ApplicationCredential allows service-specific overrides of the
+          global AC configuration.
+        displayName: Application Credential
+        path: barbican.applicationCredential
       - description: Enabled - Whether Barbican service should be deployed and managed
         displayName: Enabled
         path: barbican.enabled
@@ -66,6 +73,10 @@ spec:
       - description: TLS - overrides tls parameters for public endpoint
         displayName: TLS
         path: cinder.apiOverride.tls
+      - description: ApplicationCredential allows service-specific overrides of the
+          global AC configuration.
+        displayName: Application Credential
+        path: cinder.applicationCredential
       - description: Enabled - Whether Cinder service should be deployed and managed
         displayName: Enabled
         path: cinder.enabled
@@ -131,6 +142,10 @@ spec:
       - description: TLS - overrides tls parameters for public endpoint
         displayName: TLS
         path: glance.apiOverrides.tls
+      - description: ApplicationCredential allows service-specific overrides of the
+          global AC configuration.
+        displayName: Application Credential
+        path: glance.applicationCredential
       - description: Enabled - Whether Glance service should be deployed and managed
         displayName: Enabled
         path: glance.enabled
@@ -264,6 +279,10 @@ spec:
       - description: TLS - overrides tls parameters for public endpoint
         displayName: TLS
         path: neutron.apiOverride.tls
+      - description: ApplicationCredential allows service-specific overrides of the
+          global AC configuration.
+        displayName: Application Credential
+        path: neutron.applicationCredential
       - description: Enabled - Whether Neutron service should be deployed and managed
         displayName: Enabled
         path: neutron.enabled
@@ -286,10 +305,14 @@ spec:
       - description: TLS - overrides tls parameters for public endpoint
         displayName: TLS
         path: nova.apiOverride.tls
-      - description: |-
-          CellOverride, provides the ability to override the generated manifest of several child resources
-          for a nova cell. cell0 never have compute nodes and therefore it won't have a noVNCProxy deployed.
-          Providing an override for cell0 noVNCProxy does not have an effect.
+      - description: ApplicationCredential allows service-specific overrides of the
+          global AC configuration.
+        displayName: Application Credential
+        path: nova.applicationCredential
+      - description: CellOverride, provides the ability to override the generated
+          manifest of several child resources for a nova cell. cell0 never have compute
+          nodes and therefore it won't have a noVNCProxy deployed. Providing an override
+          for cell0 noVNCProxy does not have an effect.
         displayName: Cell Override
         path: nova.cellOverride
       - description: TLS - overrides tls parameters for public endpoint
@@ -364,6 +387,10 @@ spec:
       - description: TLS - overrides tls parameters for public endpoint
         displayName: TLS
         path: placement.apiOverride.tls
+      - description: ApplicationCredential allows service-specific overrides of the
+          global AC configuration.
+        displayName: Application Credential
+        path: placement.applicationCredential
       - description: Enabled - Whether Placement service should be deployed and managed
         displayName: Enabled
         path: placement.enabled
@@ -404,6 +431,10 @@ spec:
       - description: Swift - Parameters related to the Swift service
         displayName: Swift
         path: swift
+      - description: ApplicationCredential allows service-specific overrides of the
+          global AC configuration.
+        displayName: Application Credential
+        path: swift.applicationCredential
       - description: Enabled - Whether Swift service should be deployed and managed
         displayName: Enabled
         path: swift.enabled
@@ -436,6 +467,10 @@ spec:
       - description: TLS - overrides tls parameters for public endpoint
         displayName: TLS
         path: telemetry.aodhApiOverride.tls
+      - description: ApplicationCredential allows service-specific overrides of the
+          global AC configuration.
+        displayName: Application Credential
+        path: telemetry.applicationCredential
       - description: Enabled - Whether OpenStack Telemetry services should be deployed
           and managed
         displayName: Enabled
@@ -476,9 +511,8 @@ spec:
         path: tls.podLevel.enabled
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:booleanSwitch
-      - description: |-
-          Internal - default CA used for all OpenStackControlPlane and OpenStackDataplane endpoints,
-          except OVN related CA and certs
+      - description: Internal - default CA used for all OpenStackControlPlane and
+          OpenStackDataplane endpoints, except OVN related CA and certs
         displayName: Internal
         path: tls.podLevel.internal
       - description: Ca - defines details for CA cert config
@@ -541,9 +575,9 @@ spec:
         displayName: TLS
         path: tls
       version: v1beta1
-    - description: |-
-        OpenStackDataPlaneDeployment is the Schema for the openstackdataplanedeployments API
-        OpenStackDataPlaneDeployment name must be a valid RFC1123 as it is used in labels
+    - description: OpenStackDataPlaneDeployment is the Schema for the openstackdataplanedeployments
+        API OpenStackDataPlaneDeployment name must be a valid RFC1123 as it is used
+        in labels
       displayName: OpenStack Data Plane Deployments
       kind: OpenStackDataPlaneDeployment
       name: openstackdataplanedeployments.dataplane.openstack.org
@@ -566,9 +600,9 @@ spec:
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:booleanSwitch
       version: v1beta1
-    - description: |-
-        OpenStackDataPlaneNodeSet is the Schema for the openstackdataplanenodesets API
-        OpenStackDataPlaneNodeSet name must be a valid RFC1123 as it is used in labels
+    - description: OpenStackDataPlaneNodeSet is the Schema for the openstackdataplanenodesets
+        API OpenStackDataPlaneNodeSet name must be a valid RFC1123 as it is used in
+        labels
       displayName: OpenStack Data Plane NodeSet
       kind: OpenStackDataPlaneNodeSet
       name: openstackdataplanenodesets.dataplane.openstack.org
@@ -578,12 +612,10 @@ spec:
         path: nodeTemplate.ansible.ansiblePort
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:number
-      - description: |-
-          AnsibleSSHPrivateKeySecret Name of a private SSH key secret containing
-          private SSH key for connecting to node.
-          The named secret must be of the form:
-          Secret.data.ssh-privatekey: <base64 encoded private key contents>
-          <https://kubernetes.io/docs/concepts/configuration/secret/#ssh-authentication-secrets>
+      - description: 'AnsibleSSHPrivateKeySecret Name of a private SSH key secret
+          containing private SSH key for connecting to node. The named secret must
+          be of the form: Secret.data.ssh-privatekey: <base64 encoded private key
+          contents> <https://kubernetes.io/docs/concepts/configuration/secret/#ssh-authentication-secrets>'
         displayName: Ansible SSHPrivate Key Secret
         path: nodeTemplate.ansibleSSHPrivateKeySecret
         x-descriptors:
@@ -610,9 +642,9 @@ spec:
         x-descriptors:
         - urn:alm:descriptor:io.kubernetes.conditions
       version: v1beta1
-    - description: |-
-        OpenStackDataPlaneService defines the Schema for the openstackdataplaneservices API.
-        OpenStackDataPlaneService name must be a valid RFC1123 as it is used in labels
+    - description: OpenStackDataPlaneService is the Schema for the openstackdataplaneservices
+        API OpenStackDataPlaneService name must be a valid RFC1123 as it is used in
+        labels
       displayName: OpenStack Data Plane Service
       kind: OpenStackDataPlaneService
       name: openstackdataplaneservices.dataplane.openstack.org
@@ -622,9 +654,9 @@ spec:
         path: addCertMounts
         x-descriptors:
         - urn:alm:descriptor:com.tectonic.ui:booleanSwitch
-      - description: |-
-          DeployOnAllNodeSets - should the service be deploy across all nodesets
-          This will override default target of a service play, setting it to 'all'.
+      - description: DeployOnAllNodeSets - should the service be deploy across all
+          nodesets This will override default target of a service play, setting it
+          to 'all'.
         displayName: Deploy On All Node Sets
         path: deployOnAllNodeSets
         x-descriptors:
@@ -636,7 +668,7 @@ spec:
         x-descriptors:
         - urn:alm:descriptor:io.kubernetes.conditions
       version: v1beta1
-    - description: OpenStack defines the Schema for the openstacks API
+    - description: OpenStack is the Schema for the openstacks API
       displayName: OpenStack
       kind: OpenStack
       name: openstacks.operator.openstack.org
@@ -647,7 +679,7 @@ spec:
         x-descriptors:
         - urn:alm:descriptor:io.kubernetes.conditions
       version: v1beta1
-    - description: OpenStackVersion defines the Schema for the openstackversionupdates
+    - description: OpenStackVersion is the Schema for the openstackversionupdates
         API
       displayName: OpenStack Version
       kind: OpenStackVersion
@@ -683,7 +715,6 @@ spec:
   - name: Openstack Operator
     url: https://github.com/openstack-k8s-operators/
   maturity: alpha
-  minKubeVersion: 1.31.0
   provider:
     name: Red Hat Inc.
     url: https://redhat.com/
