@@ -177,6 +177,7 @@ webhooks:
 - admissionReviewVersions:
   - v1
   failurePolicy: Fail
+<<<<<<< HEAD
   name: mrabbitmqpolicy-v1beta1.kb.io
   rules:
     - apiGroups:
@@ -297,6 +298,8 @@ webhooks:
 - admissionReviewVersions:
   - v1
   failurePolicy: Fail
+=======
+>>>>>>> cb9e6aa8 (AppCred support)
   name: mredis-v1beta1.kb.io
   rules:
     - apiGroups:
@@ -474,6 +477,7 @@ webhooks:
 - admissionReviewVersions:
   - v1
   failurePolicy: Fail
+<<<<<<< HEAD
   name: vrabbitmqpolicy-v1beta1.kb.io
   rules:
     - apiGroups:
@@ -594,6 +598,8 @@ webhooks:
 - admissionReviewVersions:
   - v1
   failurePolicy: Fail
+=======
+>>>>>>> cb9e6aa8 (AppCred support)
   name: vredis-v1beta1.kb.io
   rules:
     - apiGroups:
