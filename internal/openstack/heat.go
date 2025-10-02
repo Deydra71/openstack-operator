@@ -93,6 +93,39 @@ func ReconcileHeat(ctx context.Context, instance *corev1beta1.OpenStackControlPl
 	instance.Spec.Heat.Template.HeatAPI.TLS.CaBundleSecretName = instance.Status.TLS.CaBundleSecretName
 	instance.Spec.Heat.Template.HeatCfnAPI.TLS.CaBundleSecretName = instance.Status.TLS.CaBundleSecretName
 
+	// Application Credential Management (Day-2 operation)
+	// TODO: Heat Application Credential support requires afaranha/heat-operator fork
+	// The Auth field exists in afaranha's fork but not in upstream heat-operator
+	// Uncomment and add the heat-operator replace directive back to use this:
+	// replace github.com/openstack-k8s-operators/heat-operator/api => github.com/afaranha/heat-operator/api v0.0.0-20260120135610-287803d0838a
+	/*
+		// Only call if AC enabled or currently configured
+		if isACEnabled(instance.Spec.ApplicationCredential, instance.Spec.Heat.ApplicationCredential) ||
+			instance.Spec.Heat.Template.Auth.ApplicationCredentialSecret != "" {
+
+			heatACSecretName, acResult, err := EnsureApplicationCredentialForService(
+				ctx, helper, instance, heat.Name, heatReady,
+				heatSecret,
+				instance.Spec.Heat.Template.PasswordSelectors.Service,
+				instance.Spec.Heat.Template.ServiceUser,
+				instance.Spec.Heat.ApplicationCredential,
+			)
+			if err != nil {
+				return ctrl.Result{}, err
+			}
+
+			// If AC is not ready, return immediately without updating the service CR
+			if (acResult != ctrl.Result{}) {
+				return acResult, nil
+			}
+
+			// Set ApplicationCredentialSecret based on what the helper returned:
+			// - If AC disabled: returns ""
+			// - If AC enabled and ready: returns the AC secret name
+			instance.Spec.Heat.Template.Auth.ApplicationCredentialSecret = heatACSecretName
+		}
+	*/
+
 	// Heat API
 	svcs, err := service.GetServicesListWithLabel(
 		ctx,
