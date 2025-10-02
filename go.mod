@@ -18,26 +18,26 @@ require (
 	github.com/openstack-k8s-operators/glance-operator/api v0.6.1-0.20251128173340-057b4476099f
 	github.com/openstack-k8s-operators/heat-operator/api v0.6.1-0.20251125115646-26b110b9f3e7
 	github.com/openstack-k8s-operators/horizon-operator/api v0.6.1-0.20251125145341-8bc80a35f9c5
-	github.com/openstack-k8s-operators/infra-operator/apis v0.6.1-0.20251124130651-1ff40691b66d
+	github.com/openstack-k8s-operators/infra-operator/apis v0.6.1-0.20251206161943-786269345f99
 	github.com/openstack-k8s-operators/ironic-operator/api v0.6.1-0.20251125165311-d458faac6271
 	github.com/openstack-k8s-operators/keystone-operator/api v0.6.1-0.20251128160419-8b3a77972a77
-	github.com/openstack-k8s-operators/lib-common/modules/ansible v0.6.1-0.20251122131503-b76943960b6c
-	github.com/openstack-k8s-operators/lib-common/modules/certmanager v0.6.1-0.20251122131503-b76943960b6c
+	github.com/openstack-k8s-operators/lib-common/modules/ansible v0.6.1-0.20251021145236-2b84ec9fd9bb
+	github.com/openstack-k8s-operators/lib-common/modules/certmanager v0.6.1-0.20251021145236-2b84ec9fd9bb
 	github.com/openstack-k8s-operators/lib-common/modules/common v0.6.1-0.20251122131503-b76943960b6c
 	github.com/openstack-k8s-operators/lib-common/modules/storage v0.6.1-0.20251122131503-b76943960b6c
-	github.com/openstack-k8s-operators/lib-common/modules/test v0.6.1-0.20251122131503-b76943960b6c
+	github.com/openstack-k8s-operators/lib-common/modules/test v0.6.1-0.20251103072528-9eb684fef4ef
 	github.com/openstack-k8s-operators/manila-operator/api v0.6.1-0.20251128162048-2454ee694c60
 	github.com/openstack-k8s-operators/mariadb-operator/api v0.6.1-0.20251125174936-3989cc50de31
 	github.com/openstack-k8s-operators/neutron-operator/api v0.6.1-0.20251125150830-633e42336356
 	github.com/openstack-k8s-operators/nova-operator/api v0.6.1-0.20251127143706-407c63ad016a
 	github.com/openstack-k8s-operators/octavia-operator/api v0.6.1-0.20251127161151-38d49bbc1c5d
 	github.com/openstack-k8s-operators/openstack-baremetal-operator/api v0.6.1-0.20251126095155-fe40bf12d8c6
-	github.com/openstack-k8s-operators/openstack-operator/api v0.0.0-00010101000000-000000000000
+	github.com/openstack-k8s-operators/openstack-operator/api v0.0.0-20251202072739-b102924657dd
 	github.com/openstack-k8s-operators/ovn-operator/api v0.6.1-0.20251127135801-f3d54911d811
 	github.com/openstack-k8s-operators/placement-operator/api v0.6.1-0.20251125174406-42e6ab0985af
 	github.com/openstack-k8s-operators/swift-operator/api v0.6.1-0.20251125135122-5157cb4f1cc5
 	github.com/openstack-k8s-operators/telemetry-operator/api v0.6.1-0.20251124182638-bf35154a77d3
-	github.com/openstack-k8s-operators/test-operator/api v0.6.1-0.20251127114833-80f76294e428
+	github.com/openstack-k8s-operators/test-operator/api v0.6.1-0.20251015105850-737534bb4fcf
 	github.com/openstack-k8s-operators/watcher-operator/api v0.6.1-0.20251127070224-35dcc7e8c5b2
 	github.com/pkg/errors v0.9.1
 	github.com/rabbitmq/cluster-operator/v2 v2.16.0
@@ -181,3 +181,26 @@ replace k8s.io/code-generator => k8s.io/code-generator v0.31.13 //allow-merging
 replace k8s.io/component-base => k8s.io/component-base v0.31.13 //allow-merging
 
 replace github.com/cert-manager/cmctl/v2 => github.com/cert-manager/cmctl/v2 v2.1.2-0.20241127223932-88edb96860cf //allow-merging
+
+// appcred related changes
+replace github.com/openstack-k8s-operators/keystone-operator/api => github.com/Deydra71/keystone-operator/api v0.0.0-20251211085602-3e1a3e022c81
+
+replace github.com/openstack-k8s-operators/barbican-operator/api => github.com/Deydra71/barbican-operator/api v0.0.0-20251212073124-08510cc1e815
+
+replace github.com/openstack-k8s-operators/cinder-operator/api => github.com/Deydra71/cinder-operator/api v0.0.0-20251212123401-7023a529348b
+
+replace github.com/openstack-k8s-operators/glance-operator/api => github.com/Deydra71/glance-operator/api v0.0.0-20251212065533-3c2b3666a4b6
+
+replace github.com/openstack-k8s-operators/swift-operator/api => github.com/Deydra71/swift-operator/api v0.0.0-20251212065506-bde15d8c0c2f
+
+replace github.com/openstack-k8s-operators/manila-operator/api => github.com/Deydra71/manila-operator/api v0.0.0-20251212065601-7c66883b62d9
+
+replace github.com/openstack-k8s-operators/neutron-operator/api => github.com/Deydra71/neutron-operator/api v0.0.0-20251215113824-7a2965b4b1c1
+
+replace github.com/openstack-k8s-operators/placement-operator/api => github.com/Deydra71/placement-operator/api v0.0.0-20251215112915-0cd688b5c84f
+
+replace github.com/openstack-k8s-operators/designate-operator/api => github.com/Deydra71/designate-operator/api v0.0.0-20251215110514-7be0a568d170
+
+replace github.com/openstack-k8s-operators/octavia-operator/api => github.com/Deydra71/octavia-operator/api v0.0.0-20251215111238-bd6af43fe754
+
+replace github.com/openstack-k8s-operators/ironic-operator/api => github.com/Deydra71/ironic-operator/api v0.0.0-20251215120732-e3b9c34bc738

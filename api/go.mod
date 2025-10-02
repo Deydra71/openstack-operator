@@ -1,4 +1,4 @@
-module github.com/openstack-k8s-operators/openstack-operator/api
+module github.com/openstack-k8s-operators/openstack-operator/apis
 
 go 1.24.4
 
@@ -13,7 +13,7 @@ require (
 	github.com/openstack-k8s-operators/glance-operator/api v0.6.1-0.20251128173340-057b4476099f
 	github.com/openstack-k8s-operators/heat-operator/api v0.6.1-0.20251125115646-26b110b9f3e7
 	github.com/openstack-k8s-operators/horizon-operator/api v0.6.1-0.20251125145341-8bc80a35f9c5
-	github.com/openstack-k8s-operators/infra-operator/apis v0.6.1-0.20251124130651-1ff40691b66d
+	github.com/openstack-k8s-operators/infra-operator/apis v0.6.1-0.20251206161943-786269345f99
 	github.com/openstack-k8s-operators/ironic-operator/api v0.6.1-0.20251125165311-d458faac6271
 	github.com/openstack-k8s-operators/keystone-operator/api v0.6.1-0.20251128160419-8b3a77972a77
 	github.com/openstack-k8s-operators/lib-common/modules/common v0.6.1-0.20251122131503-b76943960b6c
@@ -41,6 +41,8 @@ require (
 	k8s.io/utils v0.0.0-20250820121507-0af2bda4dd1d
 	sigs.k8s.io/controller-runtime v0.19.7
 )
+
+require github.com/openstack-k8s-operators/openstack-operator/api v0.0.0-20251202072739-b102924657dd
 
 require (
 	github.com/Masterminds/semver/v3 v3.4.0 // indirect
@@ -81,7 +83,6 @@ require (
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/openshift/api v3.9.0+incompatible // indirect
 	github.com/openstack-k8s-operators/lib-common/modules/openstack v0.6.1-0.20251103072528-9eb684fef4ef // indirect
-	github.com/openstack-k8s-operators/lib-common/modules/test v0.6.1-0.20251122131503-b76943960b6c // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/client_golang v1.22.0 // indirect
 	github.com/prometheus/client_model v0.6.2 // indirect
@@ -144,3 +145,26 @@ replace k8s.io/code-generator => k8s.io/code-generator v0.31.13 //allow-merging
 replace k8s.io/component-base => k8s.io/component-base v0.31.13 //allow-merging
 
 replace github.com/cert-manager/cmctl/v2 => github.com/cert-manager/cmctl/v2 v2.1.2-0.20241127223932-88edb96860cf //allow-merging
+
+// appcred related changes
+replace github.com/openstack-k8s-operators/keystone-operator/api => github.com/Deydra71/keystone-operator/api v0.0.0-20251211085602-3e1a3e022c81
+
+replace github.com/openstack-k8s-operators/barbican-operator/api => github.com/Deydra71/barbican-operator/api v0.0.0-20251212073124-08510cc1e815
+
+replace github.com/openstack-k8s-operators/cinder-operator/api => github.com/Deydra71/cinder-operator/api v0.0.0-20251212123401-7023a529348b
+
+replace github.com/openstack-k8s-operators/glance-operator/api => github.com/Deydra71/glance-operator/api v0.0.0-20251212065533-3c2b3666a4b6
+
+replace github.com/openstack-k8s-operators/swift-operator/api => github.com/Deydra71/swift-operator/api v0.0.0-20251212065506-bde15d8c0c2f
+
+replace github.com/openstack-k8s-operators/manila-operator/api => github.com/Deydra71/manila-operator/api v0.0.0-20251212065601-7c66883b62d9
+
+replace github.com/openstack-k8s-operators/neutron-operator/api => github.com/Deydra71/neutron-operator/api v0.0.0-20251215113824-7a2965b4b1c1
+
+replace github.com/openstack-k8s-operators/placement-operator/api => github.com/Deydra71/placement-operator/api v0.0.0-20251215112915-0cd688b5c84f
+
+replace github.com/openstack-k8s-operators/designate-operator/api => github.com/Deydra71/designate-operator/api v0.0.0-20251215110514-7be0a568d170
+
+replace github.com/openstack-k8s-operators/octavia-operator/api => github.com/Deydra71/octavia-operator/api v0.0.0-20251215111238-bd6af43fe754
+
+replace github.com/openstack-k8s-operators/ironic-operator/api => github.com/Deydra71/ironic-operator/api v0.0.0-20251215120732-e3b9c34bc738
