@@ -25,7 +25,7 @@ require (
 	github.com/openstack-k8s-operators/lib-common/modules/certmanager v0.6.1-0.20251021145236-2b84ec9fd9bb
 	github.com/openstack-k8s-operators/lib-common/modules/common v0.6.1-0.20251121160130-80ba19742e15
 	github.com/openstack-k8s-operators/lib-common/modules/storage v0.6.1-0.20251121160130-80ba19742e15
-	github.com/openstack-k8s-operators/lib-common/modules/test v0.6.1-0.20251021145236-2b84ec9fd9bb
+	github.com/openstack-k8s-operators/lib-common/modules/test v0.6.1-0.20251103072528-9eb684fef4ef
 	github.com/openstack-k8s-operators/manila-operator/api v0.6.1-0.20251112191014-4cf29d693cd8
 	github.com/openstack-k8s-operators/mariadb-operator/api v0.6.1-0.20251112202529-231c653930d1
 	github.com/openstack-k8s-operators/neutron-operator/api v0.6.1-0.20251103113532-c4a3d7916c65
@@ -154,6 +154,8 @@ require (
 
 replace github.com/openstack-k8s-operators/openstack-operator/apis => ./api
 
+replace github.com/openstack-k8s-operators/openstack-operator/api => ./api
+
 // mschuppert: map to latest commit from release-4.18 tag
 // must consistent within modules and service operators
 replace github.com/openshift/api => github.com/openshift/api v0.0.0-20250711200046-c86d80652a9e //allow-merging
@@ -183,7 +185,7 @@ replace k8s.io/component-base => k8s.io/component-base v0.31.13 //allow-merging
 replace github.com/cert-manager/cmctl/v2 => github.com/cert-manager/cmctl/v2 v2.1.2-0.20241127223932-88edb96860cf //allow-merging
 
 // appcred related changes
-replace github.com/openstack-k8s-operators/keystone-operator/api => github.com/Deydra71/keystone-operator/api v0.0.0-20251111093519-bcad4d2c46bc
+replace github.com/openstack-k8s-operators/keystone-operator/api => github.com/Deydra71/keystone-operator/api v0.0.0-20251125084006-aab5cfe1d4a6
 
 replace github.com/openstack-k8s-operators/barbican-operator/api => github.com/Deydra71/barbican-operator/api v0.0.0-20251125072812-68cb2ae77c6a
 
@@ -191,7 +193,7 @@ replace github.com/openstack-k8s-operators/cinder-operator/api => github.com/Dey
 
 replace github.com/openstack-k8s-operators/glance-operator/api => github.com/Deydra71/glance-operator/api v0.0.0-20251125073306-470bb653b540
 
-replace github.com/openstack-k8s-operators/swift-operator/api => github.com/Deydra71/swift-operator/api v0.0.0-20251103103412-f201b1caed51
+replace github.com/openstack-k8s-operators/swift-operator/api => github.com/Deydra71/swift-operator/api v0.0.0-20251125071516-6e972449c1da
 
 replace github.com/openstack-k8s-operators/manila-operator/api => github.com/Deydra71/manila-operator/api v0.0.0-20251125080051-8dbb26682df9
 
