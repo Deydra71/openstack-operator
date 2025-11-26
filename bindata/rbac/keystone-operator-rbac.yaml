@@ -84,24 +84,6 @@ rules:
 - apiGroups:
     - ""
   resources:
-    - events
-  verbs:
-    - create
-    - patch
-- apiGroups:
-    - ""
-  resources:
-    - secrets/finalizers
-  verbs:
-    - create
-    - delete
-    - get
-    - list
-    - patch
-    - update
-- apiGroups:
-    - ""
-  resources:
     - serviceaccounts
   verbs:
     - create
@@ -147,7 +129,6 @@ rules:
     - keystone.openstack.org
   resources:
     - keystoneapis
-    - keystoneapplicationcredentials
     - keystoneendpoints
     - keystoneservices
   verbs:
@@ -162,7 +143,6 @@ rules:
     - keystone.openstack.org
   resources:
     - keystoneapis/finalizers
-    - keystoneapplicationcredentials/finalizers
     - keystoneendpoints/finalizers
     - keystoneservices/finalizers
   verbs:
@@ -172,7 +152,6 @@ rules:
     - keystone.openstack.org
   resources:
     - keystoneapis/status
-    - keystoneapplicationcredentials/status
     - keystoneendpoints/status
     - keystoneservices/status
   verbs:
@@ -310,44 +289,16 @@ subjects:
   namespace: '{{ .OperatorNamespace }}'
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: keystone-operator-operator-metrics-auth-role
-rules:
-- apiGroups:
-  - authentication.k8s.io
-  resources:
-  - tokenreviews
-  verbs:
-  - create
-- apiGroups:
-  - authorization.k8s.io
-  resources:
-  - subjectaccessreviews
-  verbs:
-  - create
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: keystone-operator-operator-metrics-reader
-rules:
-- nonResourceURLs:
-  - /metrics
-  verbs:
-  - get
----
-apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: keystone-operator-operator-metrics-auth-rolebinding
+  name: keystone-operator-proxy-rolebinding
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: keystone-operator-operator-metrics-auth-role
+  name: keystone-operator-proxy-role
 subjects:
 - kind: ServiceAccount
-  name: keystone-operator-operator-controller-manager
+  name: keystone-operator-controller-manager
   namespace: '{{ .OperatorNamespace }}'
 ---
 apiVersion: v1
@@ -367,24 +318,3 @@ spec:
   selector:
     app.kubernetes.io/name: keystone-operator
     control-plane: controller-manager
----
----
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  labels:
-    app.kubernetes.io/component: certificate
-    app.kubernetes.io/created-by: openstack-operator
-    app.kubernetes.io/instance: metrics-certs
-    app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/name: keystone-operator
-  name: keystone-operator-metrics-certs
-  namespace: '{{ .OperatorNamespace }}'
-spec:
-  dnsNames:
-  - keystone-operator-metrics-service.{{ .OperatorNamespace }}.svc
-  - keystone-operator-metrics-service.{{ .OperatorNamespace }}.svc.cluster.local
-  issuerRef:
-    kind: Issuer
-    name: keystone-operator-selfsigned-issuer
-  secretName: keystone-operator-metrics-server-cert
