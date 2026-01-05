@@ -269,6 +269,11 @@ spec:
                         properties:
                           apiTimeout:
                             type: integer
+                          auth:
+                            properties:
+                              applicationCredentialSecret:
+                                type: string
+                            type: object
                           customServiceConfig:
                             type: string
                           customServiceConfigSecrets:
@@ -819,6 +824,11 @@ spec:
                         type: integer
                       cinderAPI:
                         properties:
+                          auth:
+                            properties:
+                              applicationCredentialSecret:
+                                type: string
+                            type: object
                           customServiceConfig:
                             type: string
                           customServiceConfigSecrets:
@@ -1975,6 +1985,11 @@ spec:
                         properties:
                           apiTimeout:
                             type: integer
+                          auth:
+                            properties:
+                              applicationCredentialSecret:
+                                type: string
+                            type: object
                           backendMdnsServerProtocol:
                             type: string
                           backendType:
@@ -4413,6 +4428,11 @@ spec:
                             apiTimeout:
                               minimum: 1
                               type: integer
+                            auth:
+                              properties:
+                                applicationCredentialSecret:
+                                  type: string
+                              type: object
                             containerImage:
                               type: string
                             customServiceConfig:
@@ -6952,6 +6972,11 @@ spec:
                         default: 60
                         minimum: 10
                         type: integer
+                      auth:
+                        properties:
+                          applicationCredentialSecret:
+                            type: string
+                        type: object
                       customServiceConfig:
                         default: '# add your customization here'
                         type: string
@@ -7213,6 +7238,11 @@ spec:
                         type: array
                       ironicInspector:
                         properties:
+                          auth:
+                            properties:
+                              applicationCredentialSecret:
+                                type: string
+                            type: object
                           customServiceConfig:
                             default: '# add your customization here'
                             type: string
@@ -9064,6 +9094,11 @@ spec:
                         type: array
                       manilaAPI:
                         properties:
+                          auth:
+                            properties:
+                              applicationCredentialSecret:
+                                type: string
+                            type: object
                           customServiceConfig:
                             default: '# add your customization here'
                             type: string
@@ -9640,6 +9675,11 @@ spec:
                         default: 120
                         minimum: 1
                         type: integer
+                      auth:
+                        properties:
+                          applicationCredentialSecret:
+                            type: string
+                        type: object
                       corePlugin:
                         default: ml2
                         type: string
@@ -11652,6 +11692,11 @@ spec:
                       apiTimeout:
                         default: 120
                         type: integer
+                      auth:
+                        properties:
+                          applicationCredentialSecret:
+                            type: string
+                        type: object
                       customServiceConfig:
                         default: '# add your customization here'
                         type: string
@@ -11694,6 +11739,11 @@ spec:
                         properties:
                           apiTimeout:
                             type: integer
+                          auth:
+                            properties:
+                              applicationCredentialSecret:
+                                type: string
+                            type: object
                           customServiceConfig:
                             default: '# add your customization here'
                             type: string
@@ -11902,6 +11952,11 @@ spec:
                           amphoraImageOwnerID:
                             default: ""
                             type: string
+                          auth:
+                            properties:
+                              applicationCredentialSecret:
+                                type: string
+                            type: object
                           customServiceConfig:
                             default: '# add your customization here'
                             type: string
@@ -12054,6 +12109,11 @@ spec:
                           amphoraImageOwnerID:
                             default: ""
                             type: string
+                          auth:
+                            properties:
+                              applicationCredentialSecret:
+                                type: string
+                            type: object
                           customServiceConfig:
                             default: '# add your customization here'
                             type: string
@@ -12312,6 +12372,11 @@ spec:
                           amphoraImageOwnerID:
                             default: ""
                             type: string
+                          auth:
+                            properties:
+                              applicationCredentialSecret:
+                                type: string
+                            type: object
                           customServiceConfig:
                             default: '# add your customization here'
                             type: string
@@ -13152,6 +13217,11 @@ spec:
                         default: 60
                         minimum: 10
                         type: integer
+                      auth:
+                        properties:
+                          applicationCredentialSecret:
+                            type: string
+                        type: object
                       customServiceConfig:
                         type: string
                       databaseAccount:
@@ -14418,6 +14488,11 @@ spec:
                             default: 60
                             minimum: 1
                             type: integer
+                          auth:
+                            properties:
+                              applicationCredentialSecret:
+                                type: string
+                            type: object
                           ceilometerEnabled:
                             default: false
                             type: boolean
@@ -16950,6 +17025,11 @@ spec:
                         default:
                           replicas: 1
                         properties:
+                          auth:
+                            properties:
+                              applicationCredentialSecret:
+                                type: string
+                            type: object
                           customServiceConfig:
                             type: string
                           nodeSelector:
@@ -17133,6 +17213,11 @@ spec:
                               namespace:
                                 type: string
                             type: object
+                        type: object
+                      auth:
+                        properties:
+                          applicationCredentialSecret:
+                            type: string
                         type: object
                       customServiceConfig:
                         type: string
