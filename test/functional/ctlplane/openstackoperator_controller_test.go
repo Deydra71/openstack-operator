@@ -41,6 +41,7 @@ import (
 	cinderv1 "github.com/openstack-k8s-operators/cinder-operator/api/v1beta1"
 	rabbitmqv1 "github.com/openstack-k8s-operators/infra-operator/apis/rabbitmq/v1beta1"
 	topologyv1 "github.com/openstack-k8s-operators/infra-operator/apis/topology/v1beta1"
+	keystonev1 "github.com/openstack-k8s-operators/keystone-operator/api/v1beta1"
 
 	"github.com/openstack-k8s-operators/lib-common/modules/certmanager"
 	"github.com/openstack-k8s-operators/lib-common/modules/common/condition"
@@ -3148,6 +3149,143 @@ var _ = Describe("OpenStackOperator Webhook", func() {
 		OSCtlplane := GetOpenStackControlPlane(types.NamespacedName{Name: "openstack", Namespace: namespace})
 		Expect(OSCtlplane.Labels).Should(Not(BeNil()))
 		Expect(OSCtlplane.Labels).Should(HaveKeyWithValue("core.openstack.org/openstackcontrolplane", "foo"))
+	})
+
+	It("Defaults Auth.ApplicationCredentialSecret for Cinder via webhook", func() {
+		spec := GetDefaultOpenStackControlPlaneSpec()
+		spec["cinder"] = map[string]interface{}{
+			"enabled": true,
+			"template": map[string]interface{}{
+				"cinderAPI": map[string]interface{}{
+					"replicas": 1,
+				},
+			},
+		}
+		DeferCleanup(th.DeleteInstance, CreateOpenStackControlPlane(names.OpenStackControlplaneName, spec))
+
+		OSCtlplane := GetOpenStackControlPlane(names.OpenStackControlplaneName)
+		Expect(OSCtlplane.Spec.Cinder.Template.CinderAPI.Auth.ApplicationCredentialSecret).Should(Equal(
+			keystonev1.GetACSecretName("cinder"),
+		))
+	})
+
+	It("Preserves custom Auth.ApplicationCredentialSecret for Glance", func() {
+		spec := GetDefaultOpenStackControlPlaneSpec()
+		spec["glance"] = map[string]interface{}{
+			"enabled": true,
+			"template": map[string]interface{}{
+				"storage": map[string]interface{}{
+					"storageClass":   "local-storage",
+					"storageRequest": "10G",
+				},
+				"glanceAPIs": map[string]interface{}{
+					"default": map[string]interface{}{
+						"replicas": 1,
+						"type":     "single",
+						"auth": map[string]interface{}{
+							"applicationCredentialSecret": "my-custom-glance-secret",
+						},
+					},
+				},
+			},
+		}
+		DeferCleanup(th.DeleteInstance, CreateOpenStackControlPlane(names.OpenStackControlplaneName, spec))
+
+		OSCtlplane := GetOpenStackControlPlane(names.OpenStackControlplaneName)
+		Expect(OSCtlplane.Spec.Glance.Template.GlanceAPIs["default"].Auth.ApplicationCredentialSecret).Should(Equal(
+			"my-custom-glance-secret",
+		))
+	})
+
+	It("Defaults Auth.ApplicationCredentialSecret for parent-level Auth services (Octavia, Ironic, Watcher)", func() {
+		spec := GetDefaultOpenStackControlPlaneSpec()
+
+		// Enable Ironic with required ironicConductors (array, not map!)
+		spec["ironic"] = map[string]interface{}{
+			"enabled": true,
+			"template": map[string]interface{}{
+				"ironicAPI": map[string]interface{}{
+					"replicas": 1,
+				},
+				"ironicConductors": []map[string]interface{}{
+					{
+						"replicas": 1,
+					},
+				},
+				"ironicInspector": map[string]interface{}{
+					"replicas": 1,
+				},
+			},
+		}
+
+		// Enable Octavia with all required dependencies
+		spec["nova"] = map[string]interface{}{
+			"enabled": true,
+			"template": map[string]interface{}{
+				"cellTemplates": map[string]interface{}{
+					"cell0": map[string]interface{}{},
+				},
+			},
+		}
+		spec["ovn"] = map[string]interface{}{
+			"enabled": true,
+			"template": map[string]interface{}{
+				"ovnController": map[string]interface{}{},
+			},
+		}
+		spec["octavia"] = map[string]interface{}{
+			"enabled": true,
+			"template": map[string]interface{}{
+				"octaviaAPI": map[string]interface{}{
+					"replicas": 1,
+				},
+			},
+		}
+
+		// Enable Watcher with required dependencies (Telemetry)
+		spec["telemetry"] = map[string]interface{}{
+			"enabled": true,
+			"template": map[string]interface{}{
+				"ceilometer": map[string]interface{}{
+					"enabled": true,
+				},
+				"metricStorage": map[string]interface{}{
+					"enabled": true,
+				},
+			},
+		}
+		spec["watcher"] = map[string]interface{}{
+			"enabled": true,
+			"template": map[string]interface{}{
+				"apiServiceTemplate": map[string]interface{}{
+					"replicas": 1,
+				},
+			},
+		}
+
+		DeferCleanup(th.DeleteInstance, CreateOpenStackControlPlane(names.OpenStackControlplaneName, spec))
+
+		OSCtlplane := GetOpenStackControlPlane(names.OpenStackControlplaneName)
+
+		// Octavia has Auth at parent OctaviaSpecCore level
+		Expect(OSCtlplane.Spec.Octavia.Template.Auth.ApplicationCredentialSecret).Should(Equal(
+			keystonev1.GetACSecretName("octavia"),
+		))
+
+		// Ironic has Auth at parent IronicSpecCore level
+		Expect(OSCtlplane.Spec.Ironic.Template.Auth.ApplicationCredentialSecret).Should(Equal(
+			keystonev1.GetACSecretName("ironic"),
+		))
+
+		// IronicInspector has separate Auth (different Keystone user)
+		Expect(OSCtlplane.Spec.Ironic.Template.IronicInspector.Auth.ApplicationCredentialSecret).Should(Equal(
+			keystonev1.GetACSecretName("ironic-inspector"),
+		))
+
+		// Watcher has Auth at parent WatcherSpecCore level
+		Expect(OSCtlplane.Spec.Watcher.Template.Auth.ApplicationCredentialSecret).Should(Equal(
+			keystonev1.GetACSecretName("watcher"),
+		))
 	})
 
 	It("calls placement validation webhook", func() {
