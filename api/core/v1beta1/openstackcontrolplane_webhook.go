@@ -973,6 +973,10 @@ func (r *OpenStackControlPlane) DefaultServices() {
 			r.Spec.Nova.Template = &novav1.NovaSpecCore{}
 		}
 		r.Spec.Nova.Template.Default()
+		// Default Auth fields for Application Credentials (parent level)
+		if r.Spec.Nova.Template.Auth.ApplicationCredentialSecret == "" {
+			r.Spec.Nova.Template.Auth.ApplicationCredentialSecret = keystonev1.GetACSecretName("nova")
+		}
 		initializeOverrideSpec(&r.Spec.Nova.APIOverride.Route, true)
 		r.Spec.Nova.Template.SetDefaultRouteAnnotations(r.Spec.Nova.APIOverride.Route.Annotations)
 	}

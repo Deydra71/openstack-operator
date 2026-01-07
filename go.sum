@@ -14,6 +14,8 @@ github.com/Deydra71/manila-operator/api v0.0.0-20260106132024-e9a579fe2ec3 h1:HX
 github.com/Deydra71/manila-operator/api v0.0.0-20260106132024-e9a579fe2ec3/go.mod h1:AqmHzvPpw7rFZRrk0LhorvWrz3goYUZ+8Pl5XHlGgh0=
 github.com/Deydra71/neutron-operator/api v0.0.0-20260106090547-e9be79e62157 h1:nKE7ANvJna28s/Y3NqgqSHQUn9M1Gs50BXoUoWop4eo=
 github.com/Deydra71/neutron-operator/api v0.0.0-20260106090547-e9be79e62157/go.mod h1:nL79n4965jUc1qLiQH1sFQtAhW1evP9QVx0836nB8xY=
+github.com/Deydra71/nova-operator/api v0.0.0-20260107124553-d177db8d08f2 h1:DcSJOSfT21/w+yw61pzMbs0DHS6nNaXkgxkPEEiu7iU=
+github.com/Deydra71/nova-operator/api v0.0.0-20260107124553-d177db8d08f2/go.mod h1:cEcrQYhrsYxeJPjtVhbsP+txnPTnaMwfgCwU4cUhQUs=
 github.com/Deydra71/octavia-operator/api v0.0.0-20260106083332-ef07326114ea h1:Dg6nudjwf76XyKm6FnFgvMbzShXtY6sInedjlNsjEj0=
 github.com/Deydra71/octavia-operator/api v0.0.0-20260106083332-ef07326114ea/go.mod h1:u3FFVWvV6nr5YAqpR6PDyc4UaQBgIS2RgN236utT20c=
 github.com/Deydra71/placement-operator/api v0.0.0-20260106090624-7345b8864eff h1:Vbo8d4wCEFx3VKLBkiMBkRC/f3ed1CdtJfE7wZYsfgQ=
@@ -182,8 +184,6 @@ github.com/openstack-k8s-operators/lib-common/modules/test v0.6.1-0.202512150948
 github.com/openstack-k8s-operators/lib-common/modules/test v0.6.1-0.20251215094837-5c05ea64c324/go.mod h1:lgYyrXEYA2BPsq4Kg6dqa+QsHgOjMPyOsEYrvyYW3jk=
 github.com/openstack-k8s-operators/mariadb-operator/api v0.6.1-0.20251220223619-1df7af154c0f h1:Lrt+Bo/mTncK8kdd+hT1o/X6oCGl2uUMdBe+X3lrKrk=
 github.com/openstack-k8s-operators/mariadb-operator/api v0.6.1-0.20251220223619-1df7af154c0f/go.mod h1:KbToF6BJ5oO1/MapNRhMHED/C/OGfCPMXmIJm/G3tLg=
-github.com/openstack-k8s-operators/nova-operator/api v0.6.1-0.20251127143706-407c63ad016a h1:lYmks3cHkbmBX1+I9a8gnajkfSddLAvNqakxx8GV3AA=
-github.com/openstack-k8s-operators/nova-operator/api v0.6.1-0.20251127143706-407c63ad016a/go.mod h1:4Bp2ias9AUXvPBOSOlEkuuegDkAcJEYB9K1UtmX4q8c=
 github.com/openstack-k8s-operators/openstack-baremetal-operator/api v0.6.1-0.20251208195928-7a740b4f921d h1:vBmv0vvDVf5/V0bZUoed2TNQ+t0Z0ExPZgUyWLoXDw4=
 github.com/openstack-k8s-operators/openstack-baremetal-operator/api v0.6.1-0.20251208195928-7a740b4f921d/go.mod h1:IguVL02aJlDXM9zRvSdZfcOL5aMsF3/YH5ywX6sUoNk=
 github.com/openstack-k8s-operators/ovn-operator/api v0.6.1-0.20251127135801-f3d54911d811 h1:H1b2RlE9EsemU/dbtV96xIXxmGBLS2UcBtdSS0bYucw=
