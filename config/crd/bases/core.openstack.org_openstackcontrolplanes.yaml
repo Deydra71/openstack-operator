@@ -15077,6 +15077,50 @@ spec:
                     - message: gracePeriodDays must be smaller than expirationDays
                       rule: '!(has(self.expirationDays) && has(self.gracePeriodDays))
                         || self.gracePeriodDays < self.expirationDays'
+                  applicationCredentialCloudKitty:
+                    default:
+                      enabled: false
+                    nullable: true
+                    properties:
+                      accessRules:
+                        items:
+                          properties:
+                            method:
+                              minLength: 1
+                              type: string
+                            path:
+                              minLength: 1
+                              type: string
+                            service:
+                              minLength: 1
+                              type: string
+                          required:
+                          - method
+                          - path
+                          - service
+                          type: object
+                        type: array
+                        x-kubernetes-list-type: atomic
+                      enabled:
+                        default: false
+                        type: boolean
+                      expirationDays:
+                        minimum: 2
+                        type: integer
+                      gracePeriodDays:
+                        minimum: 1
+                        type: integer
+                      roles:
+                        items:
+                          type: string
+                        type: array
+                      unrestricted:
+                        type: boolean
+                    type: object
+                    x-kubernetes-validations:
+                    - message: gracePeriodDays must be smaller than expirationDays
+                      rule: '!(has(self.expirationDays) && has(self.gracePeriodDays))
+                        || self.gracePeriodDays < self.expirationDays'
                   cloudKittyApiOverride:
                     properties:
                       route:
@@ -15346,6 +15390,11 @@ spec:
                               apiTimeout:
                                 default: 60
                                 type: integer
+                              auth:
+                                properties:
+                                  applicationCredentialSecret:
+                                    type: string
+                                type: object
                               customServiceConfig:
                                 default: '# add your customization here'
                                 type: string
@@ -15512,6 +15561,11 @@ spec:
                           apiTimeout:
                             default: 60
                             type: integer
+                          auth:
+                            properties:
+                              applicationCredentialSecret:
+                                type: string
+                            type: object
                           customServiceConfig:
                             default: '# add your customization here'
                             type: string
@@ -15598,6 +15652,11 @@ spec:
                           apiTimeout:
                             default: 60
                             type: integer
+                          auth:
+                            properties:
+                              applicationCredentialSecret:
+                                type: string
+                            type: object
                           cloudKittyAPI:
                             properties:
                               customServiceConfig:

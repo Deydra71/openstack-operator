@@ -1026,6 +1026,19 @@ func (r *OpenStackControlPlane) DefaultServices() {
 			r.Spec.Telemetry.Template = &telemetryv1.TelemetrySpecCore{}
 		}
 		r.Spec.Telemetry.Template.Default()
+		// Default Auth fields for Application Credentials
+		// Autoscaling (Aodh) - Auth is in Aodh field
+		if r.Spec.Telemetry.Template.Autoscaling.Aodh.Auth.ApplicationCredentialSecret == "" {
+			r.Spec.Telemetry.Template.Autoscaling.Aodh.Auth.ApplicationCredentialSecret = keystonev1.GetACSecretName("aodh")
+		}
+		// Ceilometer - Auth is inlined in CeilometerSpecCore
+		if r.Spec.Telemetry.Template.Ceilometer.Auth.ApplicationCredentialSecret == "" {
+			r.Spec.Telemetry.Template.Ceilometer.Auth.ApplicationCredentialSecret = keystonev1.GetACSecretName("ceilometer")
+		}
+		// CloudKitty - Auth is inlined from CloudKittyTemplate
+		if r.Spec.Telemetry.Template.CloudKitty.Auth.ApplicationCredentialSecret == "" {
+			r.Spec.Telemetry.Template.CloudKitty.Auth.ApplicationCredentialSecret = keystonev1.GetACSecretName("cloudkitty")
+		}
 		initializeOverrideSpec(&r.Spec.Telemetry.AodhAPIOverride.Route, true)
 		r.Spec.Telemetry.Template.Autoscaling.SetDefaultRouteAnnotations(r.Spec.Telemetry.AodhAPIOverride.Route.Annotations)
 	}

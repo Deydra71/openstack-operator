@@ -794,6 +794,13 @@ type TelemetrySection struct {
 	// +nullable
 	// +kubebuilder:default={enabled:false}
 	ApplicationCredentialAodh *ServiceAppCredSection `json:"applicationCredentialAodh"`
+
+	// ApplicationCredentialCloudKitty allows service-specific overrides of the global AC configuration for CloudKitty.
+	// +operator-sdk:csv:customresourcedefinitions:type=spec
+	// +kubebuilder:validation:Optional
+	// +nullable
+	// +kubebuilder:default={enabled:false}
+	ApplicationCredentialCloudKitty *ServiceAppCredSection `json:"applicationCredentialCloudKitty"`
 }
 
 // SwiftSection defines the desired state of Swift service

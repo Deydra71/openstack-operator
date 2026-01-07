@@ -22,6 +22,8 @@ github.com/Deydra71/placement-operator/api v0.0.0-20260106090624-7345b8864eff h1
 github.com/Deydra71/placement-operator/api v0.0.0-20260106090624-7345b8864eff/go.mod h1:CFYEdbpNfT9tWcWEiHzhln20yDWW1vBHIwge6+TNzmg=
 github.com/Deydra71/swift-operator/api v0.0.0-20260105162410-2dc80b80c1d3 h1:GS0/evvACfp2xMOcQz7vte48iHvVxiX92WIMk6Iazew=
 github.com/Deydra71/swift-operator/api v0.0.0-20260105162410-2dc80b80c1d3/go.mod h1:V/V7rgrkHQRyAJ+6NQvRjpIlIMSNC9Z6F4DkOfudCqU=
+github.com/Deydra71/telemetry-operator/api v0.0.0-20260108092627-ce6f6b9c8b67 h1:CMqN7K1xMbuw80rPWtvf4436+Z8KzmLm7u0JxIaAuhk=
+github.com/Deydra71/telemetry-operator/api v0.0.0-20260108092627-ce6f6b9c8b67/go.mod h1:1qz65mvwqq+Gzw/7LfUUt9eaIt2uGt4N4WPtVVCpljU=
 github.com/Deydra71/watcher-operator/api v0.0.0-20260106131110-a22b12b025f0 h1:kPJsgn69Y8uzLDPrv5WuThvwsClM06aT2gvugyX8Hp4=
 github.com/Deydra71/watcher-operator/api v0.0.0-20260106131110-a22b12b025f0/go.mod h1:SwQTKMUQyKGsZU9YMQUZUGSRC9pIn69bAjw4kE+C1v4=
 github.com/Masterminds/semver/v3 v3.4.0 h1:Zog+i5UMtVoCU8oKka5P7i9q9HgrJeGzI9SA1Xbatp0=
@@ -190,8 +192,6 @@ github.com/openstack-k8s-operators/ovn-operator/api v0.6.1-0.20251127135801-f3d5
 github.com/openstack-k8s-operators/ovn-operator/api v0.6.1-0.20251127135801-f3d54911d811/go.mod h1:LTrCp/cf4HFozb0ZhblhQKO0jUmmBnvD8zFocOsasAM=
 github.com/openstack-k8s-operators/rabbitmq-cluster-operator/v2 v2.6.1-0.20250929174222-a0d328fa4dec h1:saovr368HPAKHN0aRPh8h8n9s9dn3d8Frmfua0UYRlc=
 github.com/openstack-k8s-operators/rabbitmq-cluster-operator/v2 v2.6.1-0.20250929174222-a0d328fa4dec/go.mod h1:Nh2NEePLjovUQof2krTAg4JaAoLacqtPTZQXK6izNfg=
-github.com/openstack-k8s-operators/telemetry-operator/api v0.6.1-0.20251222143830-69bf8ba39dff h1:BSopHIzA10ORyp+TNdNbFvsSfkj99DC7ZZv95xjLdck=
-github.com/openstack-k8s-operators/telemetry-operator/api v0.6.1-0.20251222143830-69bf8ba39dff/go.mod h1:JZi2/dRupf7GVitj8JY3qI34WC4MZKf7zs6Rq9W7yBQ=
 github.com/openstack-k8s-operators/test-operator/api v0.6.1-0.20251220223050-cc44551aa6e9 h1:GvysIvrxBdCTnNZxsWz6eDVLDM/DMaXkFL6xY/fXciU=
 github.com/openstack-k8s-operators/test-operator/api v0.6.1-0.20251220223050-cc44551aa6e9/go.mod h1:U+zhsnBhMbC42Xt4ptV3HPVgItI7i5tgPvwlauxgXPE=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=

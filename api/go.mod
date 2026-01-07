@@ -172,3 +172,5 @@ replace github.com/openstack-k8s-operators/ironic-operator/api => github.com/Dey
 replace github.com/openstack-k8s-operators/watcher-operator/api => github.com/Deydra71/watcher-operator/api v0.0.0-20260106131110-a22b12b025f0
 
 replace github.com/openstack-k8s-operators/nova-operator/api => github.com/Deydra71/nova-operator/api v0.0.0-20260107124553-d177db8d08f2
+
+replace github.com/openstack-k8s-operators/telemetry-operator/api => github.com/Deydra71/telemetry-operator/api v0.0.0-20260108092627-ce6f6b9c8b67

@@ -103,7 +103,7 @@ func ReconcileApplicationCredentials(
 	// If global disabled, delete all ACs:
 	if !instance.Spec.ApplicationCredential.Enabled {
 		log.Info("Global AC disabled; deleting per-service AC CRs")
-		for _, svc := range []string{"glance", "nova", "swift", "ceilometer", "barbican", "cinder", "placement", "neutron", "ironic", "heat", "octavia", "manila", "designate", "watcher", "aodh"} {
+		for _, svc := range []string{"glance", "nova", "swift", "ceilometer", "barbican", "cinder", "placement", "neutron", "ironic", "heat", "octavia", "manila", "designate", "watcher", "aodh", "cloudkitty"} {
 			if res, err := deleteServiceACs(ctx, helper, instance, svc); err != nil {
 				return res, err
 			}
@@ -135,6 +135,7 @@ func ReconcileApplicationCredentials(
 		{"designate", instance.Spec.Designate.Enabled, instance.Spec.Designate.ApplicationCredential},
 		{"watcher", instance.Spec.Watcher.Enabled, instance.Spec.Watcher.ApplicationCredential},
 		{"aodh", instance.Spec.Telemetry.Enabled, instance.Spec.Telemetry.ApplicationCredentialAodh},
+		{"cloudkitty", instance.Spec.Telemetry.Enabled, instance.Spec.Telemetry.ApplicationCredentialCloudKitty},
 	}
 	global := instance.Spec.ApplicationCredential
 
@@ -230,6 +231,10 @@ func ReconcileApplicationCredentials(
 			secretName = instance.Spec.Telemetry.Template.Autoscaling.Aodh.Secret
 			passwordSelector = instance.Spec.Telemetry.Template.Autoscaling.Aodh.PasswordSelectors.AodhService
 			serviceUser = instance.Spec.Telemetry.Template.Autoscaling.Aodh.ServiceUser
+		case "cloudkitty":
+			secretName = instance.Spec.Telemetry.Template.CloudKitty.Secret
+			passwordSelector = instance.Spec.Telemetry.Template.CloudKitty.PasswordSelectors.CloudKittyService
+			serviceUser = instance.Spec.Telemetry.Template.CloudKitty.ServiceUser
 		default:
 			return struct {
 				SecretName       string
