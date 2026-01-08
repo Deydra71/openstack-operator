@@ -53,6 +53,15 @@ spec:
           spec:
             description: SwiftSpec defines the desired state of Swift
             properties:
+              auth:
+                description: Auth - Parameters related to authentication for all Swift
+                  services
+                properties:
+                  applicationCredentialSecret:
+                    description: ApplicationCredentialSecret - Secret containing Application
+                      Credential ID and Secret
+                    type: string
+                type: object
               memcachedInstance:
                 default: memcached
                 description: Memcached instance name.

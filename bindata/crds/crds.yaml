@@ -530,15 +530,15 @@ spec:
                         default: 90
                         minimum: 10
                         type: integer
+                      auth:
+                        properties:
+                          applicationCredentialSecret:
+                            type: string
+                        type: object
                       barbicanAPI:
                         properties:
                           apiTimeout:
                             type: integer
-                          auth:
-                            properties:
-                              applicationCredentialSecret:
-                                type: string
-                            type: object
                           customServiceConfig:
                             type: string
                           customServiceConfigSecrets:
@@ -1087,13 +1087,13 @@ spec:
                         default: 60
                         minimum: 10
                         type: integer
+                      auth:
+                        properties:
+                          applicationCredentialSecret:
+                            type: string
+                        type: object
                       cinderAPI:
                         properties:
-                          auth:
-                            properties:
-                              applicationCredentialSecret:
-                                type: string
-                            type: object
                           customServiceConfig:
                             type: string
                           customServiceConfigSecrets:
@@ -14731,6 +14731,11 @@ spec:
                     type: object
                   template:
                     properties:
+                      auth:
+                        properties:
+                          applicationCredentialSecret:
+                            type: string
+                        type: object
                       memcachedInstance:
                         default: memcached
                         type: string
