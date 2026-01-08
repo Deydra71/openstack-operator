@@ -265,15 +265,15 @@ spec:
                         default: 90
                         minimum: 10
                         type: integer
+                      auth:
+                        properties:
+                          applicationCredentialSecret:
+                            type: string
+                        type: object
                       barbicanAPI:
                         properties:
                           apiTimeout:
                             type: integer
-                          auth:
-                            properties:
-                              applicationCredentialSecret:
-                                type: string
-                            type: object
                           customServiceConfig:
                             type: string
                           customServiceConfigSecrets:
@@ -17089,11 +17089,6 @@ spec:
                         default:
                           replicas: 1
                         properties:
-                          auth:
-                            properties:
-                              applicationCredentialSecret:
-                                type: string
-                            type: object
                           customServiceConfig:
                             type: string
                           nodeSelector:

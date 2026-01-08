@@ -9,7 +9,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/iancoleman/strcase v0.3.0
 	github.com/k8snetworkplumbingwg/network-attachment-definition-client v1.7.7
-	github.com/onsi/ginkgo/v2 v2.27.3
+	github.com/onsi/ginkgo/v2 v2.27.4
 	github.com/onsi/gomega v1.38.3
 	github.com/openshift/api v3.9.0+incompatible
 	github.com/openstack-k8s-operators/barbican-operator/api v0.6.1-0.20251220125032-e46717ca376e
@@ -18,9 +18,9 @@ require (
 	github.com/openstack-k8s-operators/glance-operator/api v0.6.1-0.20251221170241-a5482a4f039a
 	github.com/openstack-k8s-operators/heat-operator/api v0.6.1-0.20251213170654-5ce22bc3a2e9
 	github.com/openstack-k8s-operators/horizon-operator/api v0.6.1-0.20251213062730-e339ac2f2851
-	github.com/openstack-k8s-operators/infra-operator/apis v0.6.1-0.20251223124749-eedb97238c5f
+	github.com/openstack-k8s-operators/infra-operator/apis v0.6.1-0.20260108154501-11e5091cddf1
 	github.com/openstack-k8s-operators/ironic-operator/api v0.6.1-0.20251213181601-3669e9f88d07
-	github.com/openstack-k8s-operators/keystone-operator/api v0.6.1-0.20251206133124-593df0a7a9e1
+	github.com/openstack-k8s-operators/keystone-operator/api v0.6.1-0.20260109123729-8c46aa6cb459
 	github.com/openstack-k8s-operators/lib-common/modules/ansible v0.6.1-0.20251215094837-5c05ea64c324
 	github.com/openstack-k8s-operators/lib-common/modules/certmanager v0.6.1-0.20251215094837-5c05ea64c324
 	github.com/openstack-k8s-operators/lib-common/modules/common v0.6.1-0.20251230215914-6ba873b49a35
@@ -185,13 +185,13 @@ replace github.com/cert-manager/cmctl/v2 => github.com/cert-manager/cmctl/v2 v2.
 // appcred related changes
 replace github.com/openstack-k8s-operators/keystone-operator/api => github.com/Deydra71/keystone-operator/api v0.0.0-20251211085602-3e1a3e022c81
 
-replace github.com/openstack-k8s-operators/barbican-operator/api => github.com/Deydra71/barbican-operator/api v0.0.0-20260105120406-cd16c9e6c023
+replace github.com/openstack-k8s-operators/barbican-operator/api => github.com/Deydra71/barbican-operator/api v0.0.0-20260109152505-1ac22acbc0c3
 
-replace github.com/openstack-k8s-operators/cinder-operator/api => github.com/Deydra71/cinder-operator/api v0.0.0-20260106135056-ef7e3d21d620
+replace github.com/openstack-k8s-operators/cinder-operator/api => github.com/Deydra71/cinder-operator/api v0.0.0-20260112113805-5215a12fdb65
 
 replace github.com/openstack-k8s-operators/glance-operator/api => github.com/Deydra71/glance-operator/api v0.0.0-20260106132908-e6b383a95445
 
-replace github.com/openstack-k8s-operators/swift-operator/api => github.com/Deydra71/swift-operator/api v0.0.0-20260105162410-2dc80b80c1d3
+replace github.com/openstack-k8s-operators/swift-operator/api => github.com/Deydra71/swift-operator/api v0.0.0-20260112132836-3bf51905437f
 
 replace github.com/openstack-k8s-operators/manila-operator/api => github.com/Deydra71/manila-operator/api v0.0.0-20260106132024-e9a579fe2ec3
 
@@ -205,8 +205,8 @@ replace github.com/openstack-k8s-operators/octavia-operator/api => github.com/De
 
 replace github.com/openstack-k8s-operators/ironic-operator/api => github.com/Deydra71/ironic-operator/api v0.0.0-20260106103928-10e4d4748f3b
 
-replace github.com/openstack-k8s-operators/watcher-operator/api => github.com/Deydra71/watcher-operator/api v0.0.0-20260106131110-a22b12b025f0
+replace github.com/openstack-k8s-operators/watcher-operator/api => github.com/Deydra71/watcher-operator/api v0.0.0-20260113131201-f5b9cd3d4469
 
-replace github.com/openstack-k8s-operators/nova-operator/api => github.com/Deydra71/nova-operator/api v0.0.0-20260107124553-d177db8d08f2
+replace github.com/openstack-k8s-operators/nova-operator/api => github.com/Deydra71/nova-operator/api v0.0.0-20260113122820-60e48f1943d5
 
 replace github.com/openstack-k8s-operators/telemetry-operator/api => github.com/Deydra71/telemetry-operator/api v0.0.0-20260108092627-ce6f6b9c8b67

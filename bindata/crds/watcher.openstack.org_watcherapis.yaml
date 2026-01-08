@@ -54,15 +54,6 @@ spec:
                 description: APITimeout for Route and Apache
                 minimum: 10
                 type: integer
-              auth:
-                description: Auth - Parameters related to authentication (inherited
-                  from parent Watcher CR)
-                properties:
-                  applicationCredentialSecret:
-                    description: ApplicationCredentialSecret - Secret containing Application
-                      Credential ID and Secret
-                    type: string
-                type: object
               containerImage:
                 description: The service specific Container Image URL (will be set
                   to environmental default if empty)

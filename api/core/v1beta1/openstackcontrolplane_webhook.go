@@ -810,12 +810,10 @@ func (r *OpenStackControlPlane) DefaultServices() {
 			r.Spec.Cinder.Template = &cinderv1.CinderSpecCore{}
 		}
 		r.Spec.Cinder.Template.Default()
-		// Default Auth fields for Application Credentials (only for CinderAPI which has Auth in TemplateCore)
+		// Default Auth fields for Application Credentials
 		if r.Spec.Cinder.Template.CinderAPI.Auth.ApplicationCredentialSecret == "" {
 			r.Spec.Cinder.Template.CinderAPI.Auth.ApplicationCredentialSecret = keystonev1.GetACSecretName("cinder")
 		}
-		// Note: CinderScheduler and CinderVolumes don't have Auth in TemplateCore,
-		// their child operator webhooks will default Auth when child CRs are created
 		initializeOverrideSpec(&r.Spec.Cinder.APIOverride.Route, true)
 		r.Spec.Cinder.Template.SetDefaultRouteAnnotations(r.Spec.Cinder.APIOverride.Route.Annotations)
 	}
@@ -850,10 +848,6 @@ func (r *OpenStackControlPlane) DefaultServices() {
 			r.Spec.Glance.APIOverride = map[string]Override{}
 		}
 		for name, glanceAPI := range r.Spec.Glance.Template.GlanceAPIs {
-			// Default Auth fields for Application Credentials
-			if glanceAPI.Auth.ApplicationCredentialSecret == "" {
-				glanceAPI.Auth.ApplicationCredentialSecret = keystonev1.GetACSecretName("glance")
-			}
 
 			var override Override
 			var ok bool
@@ -866,6 +860,10 @@ func (r *OpenStackControlPlane) DefaultServices() {
 				initializeOverrideSpec(&override.Route, true)
 				glanceAPI.SetDefaultRouteAnnotations(override.Route.Annotations)
 				r.Spec.Glance.APIOverride[name] = override
+			}
+			// Default Auth fields for Application Credentials
+			if glanceAPI.Auth.ApplicationCredentialSecret == "" {
+				glanceAPI.Auth.ApplicationCredentialSecret = keystonev1.GetACSecretName("glance")
 			}
 			// Update the glanceAPI with Auth defaults
 			r.Spec.Glance.Template.GlanceAPIs[name] = glanceAPI
@@ -1066,7 +1064,7 @@ func (r *OpenStackControlPlane) DefaultServices() {
 		}
 
 		r.Spec.Swift.Template.Default()
-		// Default Auth fields for Application Credentials
+		// Default Auth fields for Application Credentials (centralized at parent level)
 		if r.Spec.Swift.Template.SwiftProxy.Auth.ApplicationCredentialSecret == "" {
 			r.Spec.Swift.Template.SwiftProxy.Auth.ApplicationCredentialSecret = keystonev1.GetACSecretName("swift")
 		}
@@ -1102,12 +1100,10 @@ func (r *OpenStackControlPlane) DefaultServices() {
 			r.Spec.Barbican.Template = &barbicanv1.BarbicanSpecCore{}
 		}
 		r.Spec.Barbican.Template.Default()
-		// Default Auth fields for Application Credentials (only for BarbicanAPI which has Auth in TemplateCore)
-		if r.Spec.Barbican.Template.BarbicanAPI.Auth.ApplicationCredentialSecret == "" {
-			r.Spec.Barbican.Template.BarbicanAPI.Auth.ApplicationCredentialSecret = keystonev1.GetACSecretName("barbican")
+		// Default Auth fields for Application Credentials (centralized at parent level)
+		if r.Spec.Barbican.Template.Auth.ApplicationCredentialSecret == "" {
+			r.Spec.Barbican.Template.Auth.ApplicationCredentialSecret = keystonev1.GetACSecretName("barbican")
 		}
-		// Note: BarbicanWorker and BarbicanKeystoneListener don't have Auth in TemplateCore,
-		// their child operator webhooks will default Auth when child CRs are created
 		initializeOverrideSpec(&r.Spec.Barbican.APIOverride.Route, true)
 		r.Spec.Barbican.Template.SetDefaultRouteAnnotations(r.Spec.Barbican.APIOverride.Route.Annotations)
 	}
