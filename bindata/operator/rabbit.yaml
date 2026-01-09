@@ -39,11 +39,27 @@ spec:
           protocol: TCP
         resources:
           limits:
-            cpu: {{ .RabbitmqOperator.Deployment.Manager.Resources.Limits.CPU }}
-            memory: {{ .RabbitmqOperator.Deployment.Manager.Resources.Limits.Memory }}
+{{- if .CPU }}
+            cpu: {{ .CPU }}
+{{- end }}
+{{- if .Memory }}
+            memory: {{ .Memory }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- with .Requests }}
+{{- if or .CPU .Memory }}
           requests:
-            cpu: {{ .RabbitmqOperator.Deployment.Manager.Resources.Requests.CPU }}
-            memory: {{ .RabbitmqOperator.Deployment.Manager.Resources.Requests.Memory }}
+{{- if .CPU }}
+            cpu: {{ .CPU }}
+{{- end }}
+{{- if .Memory }}
+            memory: {{ .Memory }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
       serviceAccountName: rabbitmq-cluster-operator-controller-manager
       terminationGracePeriodSeconds: 10
       tolerations:

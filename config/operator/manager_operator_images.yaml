@@ -14,7 +14,7 @@ spec:
       - name: operator
         env:
         - name: RELATED_IMAGE_BARBICAN_OPERATOR_MANAGER_IMAGE_URL
-          value: quay.io/rh-ee-vfisarov/barbican-operator@sha256:021614ff2dcc1a00421f50f6c0c0c355117cb033cceb6521eba33ad4742f1005
+          value: quay.io/rh-ee-vfisarov/barbican-operator@sha256:a19b6efd9b5e45d6bddcd79b9a7ba5e4bdea91021e4f3274171a0acd73b2c1c7
         - name: RELATED_IMAGE_CINDER_OPERATOR_MANAGER_IMAGE_URL
           value: quay.io/rh-ee-vfisarov/cinder-operator@sha256:fe749e48bfd7d0747d42eff63f3ecc1dca3b466d7d8280bb8c23683af59ea699
         - name: RELATED_IMAGE_DESIGNATE_OPERATOR_MANAGER_IMAGE_URL

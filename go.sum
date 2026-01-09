@@ -1,5 +1,5 @@
-github.com/Deydra71/barbican-operator/api v0.0.0-20260108191645-be77ac92a5f0 h1:UJd8kd006iwhhyDyjP5IMquIcF3BqTObIviyIcZfLJo=
-github.com/Deydra71/barbican-operator/api v0.0.0-20260108191645-be77ac92a5f0/go.mod h1:seOuEXaQVmfi9kZwRBXPDlyOi4TLfZFA0FYkIJ8QfjA=
+github.com/Deydra71/barbican-operator/api v0.0.0-20260109152505-1ac22acbc0c3 h1:nkDq5FQ/XWOuTGVR2xKY5w3nh17MdIhxBYwRdNyACLA=
+github.com/Deydra71/barbican-operator/api v0.0.0-20260109152505-1ac22acbc0c3/go.mod h1:seOuEXaQVmfi9kZwRBXPDlyOi4TLfZFA0FYkIJ8QfjA=
 github.com/Deydra71/cinder-operator/api v0.0.0-20260108195227-cf4fe6021e0d h1:wUaUvIpOtmRDGgeNU3MiO6gy5W/NqlLStIY60SktLUQ=
 github.com/Deydra71/cinder-operator/api v0.0.0-20260108195227-cf4fe6021e0d/go.mod h1:u0l66SzHNcyF3S37TqBM6CnHXk5rSBFV2Mv3zMIGJwk=
 github.com/Deydra71/designate-operator/api v0.0.0-20260106092847-c5f4cd0c39e1 h1:R6uqPS30Z1rWRol2Zts3P75+sIKQQ6vLs0tLT3gEpMU=

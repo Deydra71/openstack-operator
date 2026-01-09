@@ -185,7 +185,7 @@ replace github.com/cert-manager/cmctl/v2 => github.com/cert-manager/cmctl/v2 v2.
 // appcred related changes
 replace github.com/openstack-k8s-operators/keystone-operator/api => github.com/Deydra71/keystone-operator/api v0.0.0-20251211085602-3e1a3e022c81
 
-replace github.com/openstack-k8s-operators/barbican-operator/api => github.com/Deydra71/barbican-operator/api v0.0.0-20260108191645-be77ac92a5f0
+replace github.com/openstack-k8s-operators/barbican-operator/api => github.com/Deydra71/barbican-operator/api v0.0.0-20260109152505-1ac22acbc0c3
 
 replace github.com/openstack-k8s-operators/cinder-operator/api => github.com/Deydra71/cinder-operator/api v0.0.0-20260108195227-cf4fe6021e0d
 
