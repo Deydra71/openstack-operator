@@ -10,7 +10,7 @@ require (
 	github.com/iancoleman/strcase v0.3.0
 	github.com/k8snetworkplumbingwg/network-attachment-definition-client v1.7.7
 	github.com/onsi/ginkgo/v2 v2.27.4
-	github.com/onsi/gomega v1.38.3
+	github.com/onsi/gomega v1.39.0
 	github.com/openshift/api v3.9.0+incompatible
 	github.com/openstack-k8s-operators/barbican-operator/api v0.6.1-0.20251220125032-e46717ca376e
 	github.com/openstack-k8s-operators/cinder-operator/api v0.6.1-0.20251221204540-9ad70f8debbc
@@ -210,3 +210,5 @@ replace github.com/openstack-k8s-operators/watcher-operator/api => github.com/De
 replace github.com/openstack-k8s-operators/nova-operator/api => github.com/Deydra71/nova-operator/api v0.0.0-20260113122820-60e48f1943d5
 
 replace github.com/openstack-k8s-operators/telemetry-operator/api => github.com/Deydra71/telemetry-operator/api v0.0.0-20260108092627-ce6f6b9c8b67
+
+replace github.com/openstack-k8s-operators/heat-operator/api => github.com/Deydra71/heat-operator/api v0.0.0-20260114134519-b13d9e3d80e2

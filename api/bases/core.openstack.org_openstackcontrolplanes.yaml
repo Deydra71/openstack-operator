@@ -4993,6 +4993,11 @@ spec:
                         default: 600
                         minimum: 60
                         type: integer
+                      auth:
+                        properties:
+                          applicationCredentialSecret:
+                            type: string
+                        type: object
                       customServiceConfig:
                         type: string
                       customServiceConfigSecrets:

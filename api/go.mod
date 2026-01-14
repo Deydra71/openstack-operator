@@ -6,7 +6,7 @@ require (
 	github.com/cert-manager/cert-manager v1.16.5
 	github.com/go-playground/validator/v10 v10.28.0
 	github.com/onsi/ginkgo/v2 v2.27.4
-	github.com/onsi/gomega v1.38.3
+	github.com/onsi/gomega v1.39.0
 	github.com/openstack-k8s-operators/barbican-operator/api v0.6.1-0.20251220125032-e46717ca376e
 	github.com/openstack-k8s-operators/cinder-operator/api v0.6.1-0.20251221204540-9ad70f8debbc
 	github.com/openstack-k8s-operators/designate-operator/api v0.6.1-0.20251203145024-0f6b7a8e7dc5
@@ -174,3 +174,5 @@ replace github.com/openstack-k8s-operators/watcher-operator/api => github.com/De
 replace github.com/openstack-k8s-operators/nova-operator/api => github.com/Deydra71/nova-operator/api v0.0.0-20260113122820-60e48f1943d5
 
 replace github.com/openstack-k8s-operators/telemetry-operator/api => github.com/Deydra71/telemetry-operator/api v0.0.0-20260108092627-ce6f6b9c8b67
+
+replace github.com/openstack-k8s-operators/heat-operator/api => github.com/Deydra71/heat-operator/api v0.0.0-20260114134519-b13d9e3d80e2
