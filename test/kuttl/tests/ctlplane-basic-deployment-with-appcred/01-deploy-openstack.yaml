@@ -3,3 +3,4 @@ kind: TestStep
 commands:
   - script: |
       oc kustomize ../../../../config/samples/base/openstackcontrolplane | oc apply -n $NAMESPACE -f -
+

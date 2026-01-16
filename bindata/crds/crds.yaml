@@ -15656,14 +15656,11 @@ spec:
                               apiTimeout:
                                 default: 60
                                 type: integer
-<<<<<<< HEAD
-=======
                               auth:
                                 properties:
                                   applicationCredentialSecret:
                                     type: string
                                 type: object
->>>>>>> 21504406 (AppCred support)
                               customConfigsSecretName:
                                 type: string
                               customServiceConfig:
@@ -15832,14 +15829,11 @@ spec:
                           apiTimeout:
                             default: 60
                             type: integer
-<<<<<<< HEAD
-=======
                           auth:
                             properties:
                               applicationCredentialSecret:
                                 type: string
                             type: object
->>>>>>> 21504406 (AppCred support)
                           customConfigsSecretName:
                             type: string
                           customServiceConfig:

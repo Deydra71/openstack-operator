@@ -2,23 +2,17 @@ apiVersion: core.openstack.org/v1beta1
 kind: OpenStackControlPlane
 metadata:
   name: openstack
-spec:
-  applicationCredential:
-    enabled: true
-    expirationDays: 200
-    gracePeriodDays: 90
-    roles:
-      - service
-    unrestricted: false
+spec: 
+  # Test only services that are enabled by default in basic deployment
+  
+  # barbican: inherits kubebuilder defaults (no overrides)
+  # Expected: expirationDays=365, gracePeriodDays=182, roles=[admin,service], unrestricted=false
   barbican:
     applicationCredential:
       enabled: true
-  glance:
-    applicationCredential:
-      enabled: true
-  swift:
-    applicationCredential:
-      enabled: true
+  
+  # cinder: custom service-specific overrides
+  # Tests: all fields customized
   cinder:
     applicationCredential:
       enabled: true
@@ -28,6 +22,50 @@ spec:
         - admin
         - service
       unrestricted: true
+  
+  # glance: partial overrides (only expiration values)
+  # Tests: partial override, inherits default roles
+  glance:
+    applicationCredential:
+      enabled: true
+      expirationDays: 180
+      gracePeriodDays: 60
+  
+  # swift: only roles override
+  # Tests: role customization, inherits default expiration values
+  swift:
+    applicationCredential:
+      enabled: true
+      roles:
+        - service
+  
+  # manila: unrestricted flag override
+  # Tests: unrestricted=true, inherits other defaults
   manila:
     applicationCredential:
       enabled: true
+      unrestricted: true
+  
+  # neutron: minimal override (only enabled)
+  # Tests: inherits all defaults
+  neutron:
+    applicationCredential:
+      enabled: true
+  
+  # placement: custom expiration only
+  # Tests: single field override
+  placement:
+    applicationCredential:
+      enabled: true
+      expirationDays: 90
+      gracePeriodDays: 30
+  
+  # nova: custom roles with multiple values
+  # Tests: multiple role assignment
+  nova:
+    applicationCredential:
+      enabled: true
+      roles:
+        - admin
+        - service
+        - member
