@@ -3,7 +3,10 @@ kind: OpenStackControlPlane
 metadata:
   name: openstack
 spec: 
-  # Test only services that are enabled by default in basic deployment
+  # Test only services that are enabled by default in basic deployment.
+  #
+  applicationCredential:
+    enabled: true
   
   # barbican: inherits kubebuilder defaults (no overrides)
   # Expected: expirationDays=365, gracePeriodDays=182, roles=[admin,service], unrestricted=false
@@ -39,13 +42,6 @@ spec:
       roles:
         - service
   
-  # manila: unrestricted flag override
-  # Tests: unrestricted=true, inherits other defaults
-  manila:
-    applicationCredential:
-      enabled: true
-      unrestricted: true
-  
   # neutron: minimal override (only enabled)
   # Tests: inherits all defaults
   neutron:
@@ -69,3 +65,13 @@ spec:
         - admin
         - service
         - member
+
+  # telemetry/ceilometer: enabled by default in the base sample (telemetry.enabled=true, ceilometer.enabled=true)
+  # Tests: telemetry-specific AC override path
+  telemetry:
+    applicationCredentialCeilometer:
+      enabled: true
+      expirationDays: 45
+      gracePeriodDays: 20
+      roles:
+        - service

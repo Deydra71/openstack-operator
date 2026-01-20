@@ -49,6 +49,15 @@ commands:
       echo "========================================="
       echo
 
+      echo "=== Checking global ApplicationCredential is enabled ==="
+      global_enabled=$(oc get openstackcontrolplane openstack -n "$NS" -o jsonpath='{.spec.applicationCredential.enabled}')
+      if [ "$global_enabled" != "true" ]; then
+        echo "ERROR: OpenStackControlPlane.spec.applicationCredential.enabled expected 'true', got '$global_enabled'"
+        exit 1
+      fi
+      echo "✓ OpenStackControlPlane.spec.applicationCredential.enabled = true"
+      echo
+
       # ---- ac-barbican ----
       # Pure defaults: expirationDays=365, gracePeriodDays=182, roles=[admin,service], unrestricted=false
       echo "=== Testing ac-barbican (pure defaults) ==="
@@ -89,16 +98,6 @@ commands:
       check_field swift unrestricted "false"
       echo
 
-      # ---- ac-manila ----
-      # Unrestricted override
-      echo "=== Testing ac-manila (unrestricted override) ==="
-      wait_ready manila
-      check_field manila expirationDays 365
-      check_field manila gracePeriodDays 182
-      check_roles manila "admin" "service"
-      check_field manila unrestricted "true"
-      echo
-
       # ---- ac-neutron ----
       # Inherits all defaults
       echo "=== Testing ac-neutron (inherits defaults) ==="
@@ -129,64 +128,14 @@ commands:
       check_field nova unrestricted "false"
       echo
 
-      # ---- ac-heat ----
-      # Long expiration
-      echo "=== Testing ac-heat (long expiration) ==="
-      wait_ready heat
-      check_field heat expirationDays 730
-      check_field heat gracePeriodDays 365
-      check_roles heat "admin" "service"
-      check_field heat unrestricted "false"
-      echo
-
-      # ---- ac-octavia ----
-      # Short expiration
-      echo "=== Testing ac-octavia (short expiration) ==="
-      wait_ready octavia
-      check_field octavia expirationDays 30
-      check_field octavia gracePeriodDays 15
-      check_roles octavia "admin" "service"
-      check_field octavia unrestricted "false"
-      echo
-
-      # ---- ac-ironic ----
-      # Complete custom config
-      echo "=== Testing ac-ironic (complete custom) ==="
-      wait_ready ironic
-      check_field ironic expirationDays 120
-      check_field ironic gracePeriodDays 40
-      check_roles ironic "admin"
-      check_field ironic unrestricted "true"
-      echo
-
-      # ---- ac-designate ----
-      # Single role
-      echo "=== Testing ac-designate (single role) ==="
-      wait_ready designate
-      check_field designate expirationDays 365
-      check_field designate gracePeriodDays 182
-      check_roles designate "admin"
-      check_field designate unrestricted "false"
-      echo
-
-      # ---- ac-watcher ----
-      # Pure defaults
-      echo "=== Testing ac-watcher (pure defaults) ==="
-      wait_ready watcher
-      check_field watcher expirationDays 365
-      check_field watcher gracePeriodDays 182
-      check_roles watcher "admin" "service"
-      check_field watcher unrestricted "false"
-      echo
-
-      # ---- ac-aodh ----
-      # Telemetry/Autoscaling component
-      echo "=== Testing ac-aodh (telemetry/autoscaling) ==="
-      wait_ready aodh
-      check_field aodh expirationDays 200
-      check_field aodh gracePeriodDays 90
-      check_roles aodh "admin" "service"
-      check_field aodh unrestricted "false"
+      # ---- ac-ceilometer ----
+      # Telemetry/Ceilometer component (enabled by default in base sample)
+      echo "=== Testing ac-ceilometer (telemetry/ceilometer) ==="
+      wait_ready ceilometer
+      check_field ceilometer expirationDays 45
+      check_field ceilometer gracePeriodDays 20
+      check_roles ceilometer "service"
+      check_field ceilometer unrestricted "false"
       echo
 
       echo "All ApplicationCredential CRs validated successfully"
