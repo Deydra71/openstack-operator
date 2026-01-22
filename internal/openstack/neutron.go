@@ -14,6 +14,7 @@ import (
 
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
+	keystonev1 "github.com/openstack-k8s-operators/keystone-operator/api/v1beta1"
 	neutronv1 "github.com/openstack-k8s-operators/neutron-operator/api/v1beta1"
 	corev1beta1 "github.com/openstack-k8s-operators/openstack-operator/api/core/v1beta1"
 	k8s_errors "k8s.io/apimachinery/pkg/api/errors"
@@ -106,6 +107,40 @@ func ReconcileNeutron(ctx context.Context, instance *corev1beta1.OpenStackContro
 		instance.Spec.Neutron.Template.TLS.Ovn.SecretName = &certSecret.Name
 	}
 	instance.Spec.Neutron.Template.TLS.CaBundleSecretName = instance.Status.TLS.CaBundleSecretName
+
+	// Application Credential Management (Day-2 operation)
+	neutronReady := neutronAPI.Status.ObservedGeneration == neutronAPI.Generation && neutronAPI.IsReady()
+
+	// Apply same fallback logic as in CreateOrPatch to avoid passing empty values to AC
+	neutronSecret := instance.Spec.Neutron.Template.Secret
+	if neutronSecret == "" {
+		neutronSecret = instance.Spec.Secret
+	}
+
+	acReady, acResult, err := EnsureApplicationCredentialForService(
+		ctx,
+		helper,
+		instance,
+		"neutron",
+		neutronReady,
+		neutronSecret,
+		instance.Spec.Neutron.Template.PasswordSelectors.Service,
+		instance.Spec.Neutron.Template.ServiceUser,
+	)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+
+	// Set or clear ApplicationCredentialSecret
+	// - If AC disabled: use password
+	// - If AC enabled AND ready: use AC
+	// - If AC enabled BUT not ready: leave unchanged to avoid flapping
+	acEnabled := shouldEnableACForService("neutron", instance)
+	if !acEnabled {
+		instance.Spec.Neutron.Template.Auth.ApplicationCredentialSecret = ""
+	} else if acReady {
+		instance.Spec.Neutron.Template.Auth.ApplicationCredentialSecret = keystonev1.GetACSecretName("neutron")
+	}
 
 	svcs, err := service.GetServicesListWithLabel(
 		ctx,
@@ -222,6 +257,12 @@ func ReconcileNeutron(ctx context.Context, instance *corev1beta1.OpenStackContro
 				condition.SeverityInfo,
 				corev1beta1.OpenStackControlPlaneNeutronReadyRunningMessage))
 		}
+	}
+
+	// If service is ready (Day-2) and AC returned a requeue, honor it now
+	// Otherwise (Day-0/1), ignore AC requeue to allow service bootstrap
+	if neutronReady && (acResult != ctrl.Result{}) {
+		return acResult, nil
 	}
 
 	return ctrl.Result{}, nil

@@ -3,11 +3,14 @@ package openstack
 import (
 	"context"
 	"fmt"
+	"time"
 
 	keystonev1 "github.com/openstack-k8s-operators/keystone-operator/api/v1beta1"
 	"github.com/openstack-k8s-operators/lib-common/modules/common/helper"
 	corev1beta1 "github.com/openstack-k8s-operators/openstack-operator/api/core/v1beta1"
+	k8s_errors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
@@ -90,6 +93,187 @@ func mergeAppCred(
 	return out
 }
 
+// shouldEnableACForService checks if AC should be enabled for a given service
+func shouldEnableACForService(serviceKey string, instance *corev1beta1.OpenStackControlPlane) bool {
+	// Global AC must be enabled
+	if !instance.Spec.ApplicationCredential.Enabled {
+		return false
+	}
+
+	// Check service-specific AC enablement
+	switch serviceKey {
+	case "glance":
+		return instance.Spec.Glance.ApplicationCredential != nil && instance.Spec.Glance.ApplicationCredential.Enabled
+	case "cinder":
+		return instance.Spec.Cinder.ApplicationCredential != nil && instance.Spec.Cinder.ApplicationCredential.Enabled
+	case "swift":
+		return instance.Spec.Swift.ApplicationCredential != nil && instance.Spec.Swift.ApplicationCredential.Enabled
+	case "ironic":
+		return instance.Spec.Ironic.ApplicationCredential != nil && instance.Spec.Ironic.ApplicationCredential.Enabled
+	case "heat":
+		return instance.Spec.Heat.ApplicationCredential != nil && instance.Spec.Heat.ApplicationCredential.Enabled
+	case "manila":
+		return instance.Spec.Manila.ApplicationCredential != nil && instance.Spec.Manila.ApplicationCredential.Enabled
+	case "neutron":
+		return instance.Spec.Neutron.ApplicationCredential != nil && instance.Spec.Neutron.ApplicationCredential.Enabled
+	case "nova":
+		return instance.Spec.Nova.ApplicationCredential != nil && instance.Spec.Nova.ApplicationCredential.Enabled
+	case "placement":
+		return instance.Spec.Placement.ApplicationCredential != nil && instance.Spec.Placement.ApplicationCredential.Enabled
+	case "octavia":
+		return instance.Spec.Octavia.ApplicationCredential != nil && instance.Spec.Octavia.ApplicationCredential.Enabled
+	case "barbican":
+		return instance.Spec.Barbican.ApplicationCredential != nil && instance.Spec.Barbican.ApplicationCredential.Enabled
+	case "designate":
+		return instance.Spec.Designate.ApplicationCredential != nil && instance.Spec.Designate.ApplicationCredential.Enabled
+	case "watcher":
+		return instance.Spec.Watcher.ApplicationCredential != nil && instance.Spec.Watcher.ApplicationCredential.Enabled
+	case "ceilometer":
+		return instance.Spec.Telemetry.ApplicationCredentialCeilometer != nil && instance.Spec.Telemetry.ApplicationCredentialCeilometer.Enabled
+	case "aodh":
+		return instance.Spec.Telemetry.ApplicationCredentialAodh != nil && instance.Spec.Telemetry.ApplicationCredentialAodh.Enabled
+	case "cloudkitty":
+		return instance.Spec.Telemetry.ApplicationCredentialCloudKitty != nil && instance.Spec.Telemetry.ApplicationCredentialCloudKitty.Enabled
+	default:
+		return false
+	}
+}
+
+// EnsureApplicationCredentialForService handles AC creation for a single service.
+// If service is not ready, AC creation is deferred
+// If AC already exists and is ready, it's used immediately
+// If AC doesn't exist and service is ready, AC is created
+//
+// Returns:
+//   - isReady: true if AC exists and is ready (caller should set ApplicationCredentialSecret)
+//   - result: ctrl.Result with requeue if AC is being created/not ready
+//   - err: any error that occurred
+
+func EnsureApplicationCredentialForService(
+	ctx context.Context,
+	helper *helper.Helper,
+	instance *corev1beta1.OpenStackControlPlane,
+	serviceKey string,
+	serviceReady bool,
+	secretName string,
+	passwordSelector string,
+	serviceUser string,
+) (isReady bool, result ctrl.Result, err error) {
+	Log := GetLogger(ctx)
+
+	// Generate AC CR name
+	acName := keystonev1.GetACCRName(serviceKey)
+
+	// Check if AC CR exists
+	acCR := &keystonev1.KeystoneApplicationCredential{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      acName,
+			Namespace: instance.Namespace,
+		},
+	}
+	err = helper.GetClient().Get(ctx, types.NamespacedName{Name: acName, Namespace: instance.Namespace}, acCR)
+	acExists := err == nil
+
+	// Check if AC is enabled for this service
+	if !shouldEnableACForService(serviceKey, instance) {
+		// AC disabled for this service - delete AC CR if it exists
+		if acExists {
+			Log.Info("AC disabled, deleting existing AC CR", "service", serviceKey, "acName", acName)
+			if err := helper.GetClient().Delete(ctx, acCR); err != nil && !k8s_errors.IsNotFound(err) {
+				return false, ctrl.Result{}, err
+			}
+		}
+		return false, ctrl.Result{}, nil
+	}
+
+	// Validate required fields are not empty
+	if secretName == "" || passwordSelector == "" || serviceUser == "" {
+		Log.Info("Skipping AC creation: required fields not yet defaulted",
+			"service", serviceKey,
+			"secretName", secretName,
+			"passwordSelector", passwordSelector,
+			"serviceUser", serviceUser)
+		return false, ctrl.Result{}, nil
+	}
+
+	// Get AC configuration for this service
+	var acSection *corev1beta1.ServiceAppCredSection
+	switch serviceKey {
+	case "glance":
+		acSection = instance.Spec.Glance.ApplicationCredential
+	case "cinder":
+		acSection = instance.Spec.Cinder.ApplicationCredential
+	case "swift":
+		acSection = instance.Spec.Swift.ApplicationCredential
+	case "ironic":
+		acSection = instance.Spec.Ironic.ApplicationCredential
+	case "ironic-inspector":
+		// ironic-inspector shares the same AC configuration as ironic
+		acSection = instance.Spec.Ironic.ApplicationCredential
+	case "heat":
+		acSection = instance.Spec.Heat.ApplicationCredential
+	case "manila":
+		acSection = instance.Spec.Manila.ApplicationCredential
+	case "neutron":
+		acSection = instance.Spec.Neutron.ApplicationCredential
+	case "nova":
+		acSection = instance.Spec.Nova.ApplicationCredential
+	case "placement":
+		acSection = instance.Spec.Placement.ApplicationCredential
+	case "octavia":
+		acSection = instance.Spec.Octavia.ApplicationCredential
+	case "barbican":
+		acSection = instance.Spec.Barbican.ApplicationCredential
+	case "designate":
+		acSection = instance.Spec.Designate.ApplicationCredential
+	case "watcher":
+		acSection = instance.Spec.Watcher.ApplicationCredential
+	case "ceilometer":
+		acSection = instance.Spec.Telemetry.ApplicationCredentialCeilometer
+	case "aodh":
+		acSection = instance.Spec.Telemetry.ApplicationCredentialAodh
+	case "cloudkitty":
+		acSection = instance.Spec.Telemetry.ApplicationCredentialCloudKitty
+	}
+
+	merged := mergeAppCred(instance.Spec.ApplicationCredential, acSection)
+
+	// Check if AC CR exists (already fetched at the beginning)
+	if acExists {
+		// AC exists, check if ready
+		if acCR.IsReady() {
+			Log.Info("ApplicationCredential is ready", "service", serviceKey, "acName", acName)
+			return true, ctrl.Result{}, nil
+		}
+		// AC exists but not ready yet
+		Log.Info("ApplicationCredential not ready yet, requeuing", "service", serviceKey, "acName", acName)
+		return false, ctrl.Result{RequeueAfter: time.Second * 10}, nil
+	}
+
+	// AC doesn't exist - check if we got an unexpected error during the Get
+	if !k8s_errors.IsNotFound(err) {
+		return false, ctrl.Result{}, err
+	}
+
+	// AC doesn't exist
+	if !serviceReady {
+		// Service not ready, don't create AC yet
+		Log.Info("Service not ready, deferring AC creation", "service", serviceKey)
+		return false, ctrl.Result{}, nil
+	}
+
+	// Service is ready, create AC CR
+	Log.Info("Service is ready, creating ApplicationCredential", "service", serviceKey, "acName", acName)
+
+	err = reconcileApplicationCredential(ctx, helper, instance, acName, serviceUser, secretName, passwordSelector, merged)
+	if err != nil {
+		return false, ctrl.Result{}, err
+	}
+
+	// AC created, but not ready yet - requeue to check readiness
+	return false, ctrl.Result{RequeueAfter: time.Second * 5}, nil
+}
+
 // ReconcileApplicationCredentials ensures an AC CR per enabled service,
 // propagating its secret name, passwordSelector, and serviceUser fields.
 func ReconcileApplicationCredentials(
@@ -124,7 +308,7 @@ func ReconcileApplicationCredentials(
 		{"nova", instance.Spec.Nova.Enabled, instance.Spec.Nova.ApplicationCredential},
 		{"swift", instance.Spec.Swift.Enabled, instance.Spec.Swift.ApplicationCredential},
 
-		// Telemetry sub-services: gate on telemetry + component enabled (pointer bools)
+		// Telemetry sub-services: gate on telemetry + component enabled
 		{
 			"ceilometer",
 			instance.Spec.Telemetry.Enabled &&

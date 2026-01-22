@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	glancev1 "github.com/openstack-k8s-operators/glance-operator/api/v1beta1"
+	keystonev1 "github.com/openstack-k8s-operators/keystone-operator/api/v1beta1"
 	"github.com/openstack-k8s-operators/lib-common/modules/common/condition"
 	"github.com/openstack-k8s-operators/lib-common/modules/common/helper"
 	"github.com/openstack-k8s-operators/lib-common/modules/common/service"
@@ -85,6 +86,47 @@ func ReconcileGlance(ctx context.Context, instance *corev1beta1.OpenStackControl
 		if !k8s_errors.IsNotFound(err) {
 			return ctrl.Result{}, err
 		}
+	}
+
+	// Application Credential Management (Day-2 operation)
+	// Check if AC should be enabled and manage it accordingly
+	glanceReady := glance.Status.ObservedGeneration == glance.Generation && glance.IsReady()
+	acEnabled := shouldEnableACForService("glance", instance)
+
+	// Apply same fallback logic as in CreateOrPatch to avoid passing empty values to AC
+	glanceSecret := instance.Spec.Glance.Template.Secret
+	if glanceSecret == "" {
+		glanceSecret = instance.Spec.Secret
+	}
+
+	acReady, acResult, err := EnsureApplicationCredentialForService(
+		ctx,
+		helper,
+		instance,
+		"glance",
+		glanceReady,
+		glanceSecret,
+		instance.Spec.Glance.Template.PasswordSelectors.Service,
+		instance.Spec.Glance.Template.ServiceUser,
+	)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+
+	// Set or clear ApplicationCredentialSecret in all GlanceAPIs
+	// - If AC disabled: use password
+	// - If AC enabled AND ready: use AC
+	// - If AC enabled BUT not ready: leave unchanged to avoid flapping
+	for name, glanceAPI := range instance.Spec.Glance.Template.GlanceAPIs {
+		if !acEnabled {
+			// AC disabled, clear the field
+			glanceAPI.Auth.ApplicationCredentialSecret = ""
+		} else if acReady {
+			// AC enabled and ready, set the field
+			glanceAPI.Auth.ApplicationCredentialSecret = keystonev1.GetACSecretName("glance")
+		}
+		// If acEnabled && !acReady: do nothing (leave field as-is to avoid flapping)
+		instance.Spec.Glance.Template.GlanceAPIs[name] = glanceAPI
 	}
 
 	// add selector to service overrides
@@ -170,6 +212,10 @@ func ReconcileGlance(ctx context.Context, instance *corev1beta1.OpenStackControl
 		instance.Spec.Glance.Template.GlanceAPIs[name] = glanceAPI
 	}
 	if changed {
+		// If service is ready (Day-2) and AC returned a requeue, honor it now
+		if glanceReady && (acResult != ctrl.Result{}) {
+			return acResult, nil
+		}
 		return ctrl.Result{}, nil
 	}
 
@@ -247,6 +293,12 @@ func ReconcileGlance(ctx context.Context, instance *corev1beta1.OpenStackControl
 				condition.SeverityInfo,
 				corev1beta1.OpenStackControlPlaneGlanceReadyRunningMessage))
 		}
+	}
+
+	// If service is ready (Day-2) and AC returned a requeue, honor it now
+	// Otherwise (Day-0/1), ignore AC requeue to allow service bootstrap
+	if glanceReady && (acResult != ctrl.Result{}) {
+		return acResult, nil
 	}
 
 	return ctrl.Result{}, nil

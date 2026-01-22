@@ -31,6 +31,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	certmgrv1 "github.com/cert-manager/cert-manager/pkg/apis/certmanager/v1"
+	keystonev1 "github.com/openstack-k8s-operators/keystone-operator/api/v1beta1"
 	novav1 "github.com/openstack-k8s-operators/nova-operator/api/v1beta1"
 	corev1beta1 "github.com/openstack-k8s-operators/openstack-operator/api/core/v1beta1"
 	k8s_errors "k8s.io/apimachinery/pkg/api/errors"
@@ -153,6 +154,41 @@ func ReconcileNova(ctx context.Context, instance *corev1beta1.OpenStackControlPl
 			cellTemplate.MetadataServiceTemplate.TLS.CaBundleSecretName = instance.Status.TLS.CaBundleSecretName
 		}
 		instance.Spec.Nova.Template.CellTemplates[cellName] = cellTemplate
+	}
+
+	// Application Credential Management (Day-2 operation)
+	novaReady := nova.Status.ObservedGeneration == nova.Generation && nova.IsReady()
+
+	// Apply same fallback logic as in CreateOrPatch to avoid passing empty values to AC
+	novaSecret := instance.Spec.Nova.Template.Secret
+	if novaSecret == "" {
+		novaSecret = instance.Spec.Secret
+	}
+
+	acReady, acResult, err := EnsureApplicationCredentialForService(
+		ctx,
+		helper,
+		instance,
+		"nova",
+		novaReady,
+		novaSecret,
+		instance.Spec.Nova.Template.PasswordSelectors.Service,
+		instance.Spec.Nova.Template.ServiceUser,
+	)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+	// Note: Don't early-return on acResult here - need to set fields first and only requeue at the end if appropriate
+
+	// Set or clear ApplicationCredentialSecret
+	// - If AC disabled: use password
+	// - If AC enabled AND ready: use AC
+	// - If AC enabled BUT not ready: leave unchanged to avoid flapping
+	acEnabled := shouldEnableACForService("nova", instance)
+	if !acEnabled {
+		instance.Spec.Nova.Template.Auth.ApplicationCredentialSecret = ""
+	} else if acReady {
+		instance.Spec.Nova.Template.Auth.ApplicationCredentialSecret = keystonev1.GetACSecretName("nova")
 	}
 
 	// Nova API
@@ -411,6 +447,12 @@ func ReconcileNova(ctx context.Context, instance *corev1beta1.OpenStackControlPl
 				condition.SeverityInfo,
 				corev1beta1.OpenStackControlPlaneNovaReadyRunningMessage))
 		}
+	}
+
+	// If service is ready (Day-2) and AC returned a requeue, honor it now
+	// Otherwise (Day-0/1), ignore AC requeue to allow service bootstrap
+	if novaReady && (acResult != ctrl.Result{}) {
+		return acResult, nil
 	}
 
 	return ctrl.Result{}, nil

@@ -11,6 +11,7 @@ import (
 
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
+	keystonev1 "github.com/openstack-k8s-operators/keystone-operator/api/v1beta1"
 	manilav1 "github.com/openstack-k8s-operators/manila-operator/api/v1beta1"
 	corev1beta1 "github.com/openstack-k8s-operators/openstack-operator/api/core/v1beta1"
 	k8s_errors "k8s.io/apimachinery/pkg/api/errors"
@@ -61,6 +62,40 @@ func ReconcileManila(ctx context.Context, instance *corev1beta1.OpenStackControl
 		if !k8s_errors.IsNotFound(err) {
 			return ctrl.Result{}, err
 		}
+	}
+
+	// Application Credential Management (Day-2 operation)
+	manilaReady := manila.Status.ObservedGeneration == manila.Generation && manila.IsReady()
+
+	// Apply same fallback logic as in CreateOrPatch to avoid passing empty values to AC
+	manilaSecret := instance.Spec.Manila.Template.Secret
+	if manilaSecret == "" {
+		manilaSecret = instance.Spec.Secret
+	}
+
+	acReady, acResult, err := EnsureApplicationCredentialForService(
+		ctx,
+		helper,
+		instance,
+		"manila",
+		manilaReady,
+		manilaSecret,
+		instance.Spec.Manila.Template.PasswordSelectors.Service,
+		instance.Spec.Manila.Template.ServiceUser,
+	)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+
+	// Set or clear ApplicationCredentialSecret
+	// - If AC disabled: use password
+	// - If AC enabled AND ready: use AC
+	// - If AC enabled BUT not ready: leave unchanged to avoid flapping
+	acEnabled := shouldEnableACForService("manila", instance)
+	if !acEnabled {
+		instance.Spec.Manila.Template.ManilaAPI.Auth.ApplicationCredentialSecret = ""
+	} else if acReady {
+		instance.Spec.Manila.Template.ManilaAPI.Auth.ApplicationCredentialSecret = keystonev1.GetACSecretName("manila")
 	}
 
 	// preserve any previously set TLS certs, set CA cert
@@ -212,6 +247,12 @@ func ReconcileManila(ctx context.Context, instance *corev1beta1.OpenStackControl
 				condition.SeverityInfo,
 				corev1beta1.OpenStackControlPlaneManilaReadyRunningMessage))
 		}
+	}
+
+	// If service is ready (Day-2) and AC returned a requeue, honor it now
+	// Otherwise (Day-0/1), ignore AC requeue to allow service bootstrap
+	if manilaReady && (acResult != ctrl.Result{}) {
+		return acResult, nil
 	}
 
 	return ctrl.Result{}, nil

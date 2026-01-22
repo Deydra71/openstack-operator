@@ -10,6 +10,7 @@ import (
 	"github.com/openstack-k8s-operators/lib-common/modules/common/service"
 	"github.com/openstack-k8s-operators/lib-common/modules/common/tls"
 
+	keystonev1 "github.com/openstack-k8s-operators/keystone-operator/api/v1beta1"
 	corev1beta1 "github.com/openstack-k8s-operators/openstack-operator/api/core/v1beta1"
 	telemetryv1 "github.com/openstack-k8s-operators/telemetry-operator/api/v1beta1"
 
@@ -96,6 +97,135 @@ func ReconcileTelemetry(ctx context.Context, instance *corev1beta1.OpenStackCont
 			AddServiceOpenStackOperatorLabel(
 				instance.Spec.Telemetry.Template.CloudKitty.CloudKittyAPI.Override.Service[endpointType],
 				telemetry.Name)
+	}
+
+	// Application Credential Management (Day-2 operation)
+	// Telemetry has 3 separate services with 3 different users: aodh, ceilometer, cloudkitty
+	telemetryReady := telemetry.Status.ObservedGeneration == telemetry.Generation && telemetry.IsReady()
+
+	// Initialize AC result variables (will be set if services are enabled)
+	aodhACResult := ctrl.Result{}
+	ceilometerACResult := ctrl.Result{}
+	cloudkittyACResult := ctrl.Result{}
+
+	// AC for Aodh (if service enabled)
+	if instance.Spec.Telemetry.Template.Autoscaling.Enabled != nil && *instance.Spec.Telemetry.Template.Autoscaling.Enabled {
+		aodhACEnabled := shouldEnableACForService("aodh", instance)
+
+		// Apply same fallback logic as in CreateOrPatch to avoid passing empty values to AC
+		aodhSecret := instance.Spec.Telemetry.Template.Autoscaling.Aodh.Secret
+		if aodhSecret == "" {
+			aodhSecret = instance.Spec.Secret
+		}
+
+		var aodhACReady bool
+		var err error
+		aodhACReady, aodhACResult, err = EnsureApplicationCredentialForService(
+			ctx,
+			helper,
+			instance,
+			"aodh",
+			telemetryReady,
+			aodhSecret,
+			instance.Spec.Telemetry.Template.Autoscaling.Aodh.PasswordSelectors.AodhService,
+			instance.Spec.Telemetry.Template.Autoscaling.Aodh.ServiceUser,
+		)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+
+		// Set or clear ApplicationCredentialSecret for Aodh
+		// - If AC disabled: use password
+		// - If AC enabled AND ready: use AC
+		// - If AC enabled BUT not ready: leave unchanged to avoid flapping
+		if !aodhACEnabled {
+			instance.Spec.Telemetry.Template.Autoscaling.Aodh.Auth.ApplicationCredentialSecret = ""
+		} else if aodhACReady {
+			instance.Spec.Telemetry.Template.Autoscaling.Aodh.Auth.ApplicationCredentialSecret = keystonev1.GetACSecretName("aodh")
+		}
+	} else {
+		// Aodh service disabled, clear the field
+		instance.Spec.Telemetry.Template.Autoscaling.Aodh.Auth.ApplicationCredentialSecret = ""
+	}
+
+	// AC for Ceilometer (if service enabled)
+	if instance.Spec.Telemetry.Template.Ceilometer.Enabled != nil && *instance.Spec.Telemetry.Template.Ceilometer.Enabled {
+		ceilometerACEnabled := shouldEnableACForService("ceilometer", instance)
+
+		// Apply same fallback logic as in CreateOrPatch to avoid passing empty values to AC
+		ceilometerSecret := instance.Spec.Telemetry.Template.Ceilometer.Secret
+		if ceilometerSecret == "" {
+			ceilometerSecret = instance.Spec.Secret
+		}
+
+		var ceilometerACReady bool
+		var err error
+		ceilometerACReady, ceilometerACResult, err = EnsureApplicationCredentialForService(
+			ctx,
+			helper,
+			instance,
+			"ceilometer",
+			telemetryReady,
+			ceilometerSecret,
+			instance.Spec.Telemetry.Template.Ceilometer.PasswordSelectors.CeilometerService,
+			instance.Spec.Telemetry.Template.Ceilometer.ServiceUser,
+		)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+
+		// Set or clear ApplicationCredentialSecret for Ceilometer
+		// - If AC disabled: use password
+		// - If AC enabled AND ready: use AC
+		// - If AC enabled BUT not ready: leave unchanged to avoid flapping
+		if !ceilometerACEnabled {
+			instance.Spec.Telemetry.Template.Ceilometer.Auth.ApplicationCredentialSecret = ""
+		} else if ceilometerACReady {
+			instance.Spec.Telemetry.Template.Ceilometer.Auth.ApplicationCredentialSecret = keystonev1.GetACSecretName("ceilometer")
+		}
+	} else {
+		// Ceilometer service disabled, clear the field
+		instance.Spec.Telemetry.Template.Ceilometer.Auth.ApplicationCredentialSecret = ""
+	}
+
+	// AC for CloudKitty (if service enabled)
+	if instance.Spec.Telemetry.Template.CloudKitty.Enabled != nil && *instance.Spec.Telemetry.Template.CloudKitty.Enabled {
+		cloudkittyACEnabled := shouldEnableACForService("cloudkitty", instance)
+
+		// Apply same fallback logic as in CreateOrPatch to avoid passing empty values to AC
+		cloudkittySecret := instance.Spec.Telemetry.Template.CloudKitty.Secret
+		if cloudkittySecret == "" {
+			cloudkittySecret = instance.Spec.Secret
+		}
+
+		var cloudkittyACReady bool
+		var err error
+		cloudkittyACReady, cloudkittyACResult, err = EnsureApplicationCredentialForService(
+			ctx,
+			helper,
+			instance,
+			"cloudkitty",
+			telemetryReady,
+			cloudkittySecret,
+			instance.Spec.Telemetry.Template.CloudKitty.PasswordSelectors.CloudKittyService,
+			instance.Spec.Telemetry.Template.CloudKitty.ServiceUser,
+		)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+
+		// Set or clear ApplicationCredentialSecret for CloudKitty
+		// - If AC disabled: use password
+		// - If AC enabled AND ready: use AC
+		// - If AC enabled BUT not ready: leave unchanged to avoid flapping
+		if !cloudkittyACEnabled {
+			instance.Spec.Telemetry.Template.CloudKitty.Auth.ApplicationCredentialSecret = ""
+		} else if cloudkittyACReady {
+			instance.Spec.Telemetry.Template.CloudKitty.Auth.ApplicationCredentialSecret = keystonev1.GetACSecretName("cloudkitty")
+		}
+	} else {
+		// CloudKitty service disabled, clear the field
+		instance.Spec.Telemetry.Template.CloudKitty.Auth.ApplicationCredentialSecret = ""
 	}
 
 	// preserve any previously set TLS certs, set CA cert
@@ -495,6 +625,20 @@ func ReconcileTelemetry(ctx context.Context, instance *corev1beta1.OpenStackCont
 				condition.RequestedReason,
 				condition.SeverityInfo,
 				corev1beta1.OpenStackControlPlaneTelemetryReadyRunningMessage))
+		}
+	}
+
+	// If service is ready (Day-2) and any AC returned a requeue, honor it now
+	// Otherwise (Day-0/1), ignore AC requeue to allow service bootstrap
+	if telemetryReady {
+		if (aodhACResult != ctrl.Result{}) {
+			return aodhACResult, nil
+		}
+		if (ceilometerACResult != ctrl.Result{}) {
+			return ceilometerACResult, nil
+		}
+		if (cloudkittyACResult != ctrl.Result{}) {
+			return cloudkittyACResult, nil
 		}
 	}
 

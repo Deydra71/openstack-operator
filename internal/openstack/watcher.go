@@ -10,6 +10,7 @@ import (
 
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
+	keystonev1 "github.com/openstack-k8s-operators/keystone-operator/api/v1beta1"
 	corev1beta1 "github.com/openstack-k8s-operators/openstack-operator/api/core/v1beta1"
 	watcherv1 "github.com/openstack-k8s-operators/watcher-operator/api/v1beta1"
 	k8s_errors "k8s.io/apimachinery/pkg/api/errors"
@@ -58,6 +59,56 @@ func ReconcileWatcher(ctx context.Context, instance *corev1beta1.OpenStackContro
 		if !k8s_errors.IsNotFound(err) {
 			return ctrl.Result{}, err
 		}
+	}
+
+	// Application Credential Management (Day-2 operation)
+	// Watcher uses pointer fields, safely extract values
+	watcherReady := watcher.Status.ObservedGeneration == watcher.Generation && watcher.IsReady()
+
+	// Helper to get Watcher values (which are pointers) with fallback logic
+	getWatcherSecret := func() string {
+		if instance.Spec.Watcher.Template.Secret != nil && *instance.Spec.Watcher.Template.Secret != "" {
+			return *instance.Spec.Watcher.Template.Secret
+		}
+		// Apply same fallback as in CreateOrPatch
+		return instance.Spec.Secret
+	}
+	getWatcherServiceUser := func() string {
+		if instance.Spec.Watcher.Template.ServiceUser != nil {
+			return *instance.Spec.Watcher.Template.ServiceUser
+		}
+		return ""
+	}
+	getWatcherPasswordSelector := func() string {
+		if instance.Spec.Watcher.Template.PasswordSelectors.Service != nil {
+			return *instance.Spec.Watcher.Template.PasswordSelectors.Service
+		}
+		return ""
+	}
+
+	acReady, acResult, err := EnsureApplicationCredentialForService(
+		ctx,
+		helper,
+		instance,
+		"watcher",
+		watcherReady,
+		getWatcherSecret(),
+		getWatcherPasswordSelector(),
+		getWatcherServiceUser(),
+	)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+
+	// Set or clear ApplicationCredentialSecret
+	// - If AC disabled: use password
+	// - If AC enabled AND ready: use AC
+	// - If AC enabled BUT not ready: leave unchanged to avoid flapping
+	acEnabled := shouldEnableACForService("watcher", instance)
+	if !acEnabled {
+		instance.Spec.Watcher.Template.Auth.ApplicationCredentialSecret = ""
+	} else if acReady {
+		instance.Spec.Watcher.Template.Auth.ApplicationCredentialSecret = keystonev1.GetACSecretName("watcher")
 	}
 
 	// preserve any previously set TLS certs, set CA cert
@@ -180,6 +231,12 @@ func ReconcileWatcher(ctx context.Context, instance *corev1beta1.OpenStackContro
 				condition.SeverityInfo,
 				corev1beta1.OpenStackControlPlaneWatcherReadyRunningMessage))
 		}
+	}
+
+	// If service is ready (Day-2) and AC returned a requeue, honor it now
+	// Otherwise (Day-0/1), ignore AC requeue to allow service bootstrap
+	if watcherReady && (acResult != ctrl.Result{}) {
+		return acResult, nil
 	}
 
 	return ctrl.Result{}, nil

@@ -12,6 +12,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	cinderv1 "github.com/openstack-k8s-operators/cinder-operator/api/v1beta1"
+	keystonev1 "github.com/openstack-k8s-operators/keystone-operator/api/v1beta1"
 	corev1beta1 "github.com/openstack-k8s-operators/openstack-operator/api/core/v1beta1"
 	k8s_errors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -74,6 +75,40 @@ func ReconcileCinder(ctx context.Context, instance *corev1beta1.OpenStackControl
 		if !k8s_errors.IsNotFound(err) {
 			return ctrl.Result{}, err
 		}
+	}
+
+	// Application Credential Management (Day-2 operation)
+	cinderReady := cinder.Status.ObservedGeneration == cinder.Generation && cinder.IsReady()
+
+	// Apply same fallback logic as in CreateOrPatch to avoid passing empty values to AC
+	cinderSecret := instance.Spec.Cinder.Template.Secret
+	if cinderSecret == "" {
+		cinderSecret = instance.Spec.Secret
+	}
+
+	acReady, acResult, err := EnsureApplicationCredentialForService(
+		ctx,
+		helper,
+		instance,
+		"cinder",
+		cinderReady,
+		cinderSecret,
+		instance.Spec.Cinder.Template.PasswordSelectors.Service,
+		instance.Spec.Cinder.Template.ServiceUser,
+	)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+
+	// Set or clear ApplicationCredentialSecret
+	// - If AC disabled: use password
+	// - If AC enabled AND ready: use AC
+	// - If AC enabled BUT not ready: leave unchanged to avoid flapping
+	acEnabled := shouldEnableACForService("cinder", instance)
+	if !acEnabled {
+		instance.Spec.Cinder.Template.CinderAPI.Auth.ApplicationCredentialSecret = ""
+	} else if acReady {
+		instance.Spec.Cinder.Template.CinderAPI.Auth.ApplicationCredentialSecret = keystonev1.GetACSecretName("cinder")
 	}
 
 	// preserve any previously set TLS certs,set CA cert
@@ -236,6 +271,12 @@ func ReconcileCinder(ctx context.Context, instance *corev1beta1.OpenStackControl
 				condition.SeverityInfo,
 				corev1beta1.OpenStackControlPlaneCinderReadyRunningMessage))
 		}
+	}
+
+	// If service is ready (Day-2) and AC returned a requeue, honor it now
+	// Otherwise (Day-0/1), ignore AC requeue to allow service bootstrap
+	if cinderReady && (acResult != ctrl.Result{}) {
+		return acResult, nil
 	}
 
 	return ctrl.Result{}, nil

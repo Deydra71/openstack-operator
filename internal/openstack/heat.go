@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	keystonev1 "github.com/openstack-k8s-operators/keystone-operator/api/v1beta1"
 	"github.com/openstack-k8s-operators/lib-common/modules/common/condition"
 	"github.com/openstack-k8s-operators/lib-common/modules/common/helper"
 	"github.com/openstack-k8s-operators/lib-common/modules/common/service"
@@ -92,6 +93,36 @@ func ReconcileHeat(ctx context.Context, instance *corev1beta1.OpenStackControlPl
 	}
 	instance.Spec.Heat.Template.HeatAPI.TLS.CaBundleSecretName = instance.Status.TLS.CaBundleSecretName
 	instance.Spec.Heat.Template.HeatCfnAPI.TLS.CaBundleSecretName = instance.Status.TLS.CaBundleSecretName
+
+	// Application Credential Management (Day-2 operation)
+	heatReady := heat.Status.ObservedGeneration == heat.Generation && heat.IsReady()
+	heatACEnabled := shouldEnableACForService("heat", instance)
+
+	// Apply same fallback logic as in CreateOrPatch to avoid passing empty values to AC
+	heatSecret := instance.Spec.Heat.Template.Secret
+	if heatSecret == "" {
+		heatSecret = instance.Spec.Secret
+	}
+
+	heatACReady, acResult, err := EnsureApplicationCredentialForService(
+		ctx, helper, instance, "heat", heatReady,
+		heatSecret,
+		instance.Spec.Heat.Template.PasswordSelectors.Service,
+		instance.Spec.Heat.Template.ServiceUser,
+	)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+
+	// Set or clear ApplicationCredentialSecret for Heat
+	// - If AC disabled: use password
+	// - If AC enabled AND ready: use AC
+	// - If AC enabled BUT not ready: leave unchanged to avoid flapping
+	if !heatACEnabled {
+		instance.Spec.Heat.Template.Auth.ApplicationCredentialSecret = ""
+	} else if heatACReady {
+		instance.Spec.Heat.Template.Auth.ApplicationCredentialSecret = keystonev1.GetACSecretName("heat")
+	}
 
 	// Heat API
 	svcs, err := service.GetServicesListWithLabel(
@@ -234,6 +265,12 @@ func ReconcileHeat(ctx context.Context, instance *corev1beta1.OpenStackControlPl
 				condition.SeverityInfo,
 				corev1beta1.OpenStackControlPlaneHeatReadyRunningMessage))
 		}
+	}
+
+	// If service is ready (Day-2) and AC returned a requeue, honor it now
+	// Otherwise (Day-0/1), ignore AC requeue to allow service bootstrap
+	if heatReady && (acResult != ctrl.Result{}) {
+		return acResult, nil
 	}
 
 	return ctrl.Result{}, nil

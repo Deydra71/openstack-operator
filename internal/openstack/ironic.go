@@ -11,6 +11,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	ironicv1 "github.com/openstack-k8s-operators/ironic-operator/api/v1beta1"
+	keystonev1 "github.com/openstack-k8s-operators/keystone-operator/api/v1beta1"
 	corev1beta1 "github.com/openstack-k8s-operators/openstack-operator/api/core/v1beta1"
 	k8s_errors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -92,6 +93,69 @@ func ReconcileIronic(ctx context.Context, instance *corev1beta1.OpenStackControl
 	}
 	instance.Spec.Ironic.Template.IronicAPI.TLS.CaBundleSecretName = instance.Status.TLS.CaBundleSecretName
 	instance.Spec.Ironic.Template.IronicInspector.TLS.CaBundleSecretName = instance.Status.TLS.CaBundleSecretName
+
+	// Application Credential Management (Day-2 operation)
+	// Ironic has 2 users: ironic (main service) and ironic-inspector
+	ironicReady := ironic.Status.ObservedGeneration == ironic.Generation && ironic.IsReady()
+	acEnabled := shouldEnableACForService("ironic", instance)
+
+	// Apply same fallback logic as in CreateOrPatch to avoid passing empty values to AC
+	// Both ironic and ironic-inspector share the same secret
+	ironicSecret := instance.Spec.Ironic.Template.Secret
+	if ironicSecret == "" {
+		ironicSecret = instance.Spec.Secret
+	}
+
+	// AC for main ironic service
+	ironicACReady, acResult, err := EnsureApplicationCredentialForService(
+		ctx,
+		helper,
+		instance,
+		"ironic",
+		ironicReady,
+		ironicSecret,
+		instance.Spec.Ironic.Template.PasswordSelectors.Service,
+		instance.Spec.Ironic.Template.ServiceUser,
+	)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+	// Note: Don't early-return on acResult here - need to set fields first and only requeue at the end if appropriate
+
+	// Set or clear ApplicationCredentialSecret for main ironic service
+	// - If AC disabled: use password
+	// - If AC enabled AND ready: use AC
+	// - If AC enabled BUT not ready: leave unchanged to avoid flapping
+	if !acEnabled {
+		instance.Spec.Ironic.Template.Auth.ApplicationCredentialSecret = ""
+	} else if ironicACReady {
+		instance.Spec.Ironic.Template.Auth.ApplicationCredentialSecret = keystonev1.GetACSecretName("ironic")
+	}
+
+	// AC for ironic-inspector (separate user, separate AC, but shares the same secret as ironic)
+	inspectorACReady, inspectorACResult, err := EnsureApplicationCredentialForService(
+		ctx,
+		helper,
+		instance,
+		"ironic-inspector",
+		ironicReady,
+		ironicSecret, // Inspector shares the same secret as ironic
+		instance.Spec.Ironic.Template.IronicInspector.PasswordSelectors.Service,
+		instance.Spec.Ironic.Template.IronicInspector.ServiceUser,
+	)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+
+	// Set or clear ApplicationCredentialSecret for ironic-inspector
+	// - If AC disabled: use password
+	// - If AC enabled AND ready: use AC
+	// - If AC enabled BUT not ready: leave unchanged to avoid flapping
+	if !acEnabled {
+		instance.Spec.Ironic.Template.IronicInspector.Auth.ApplicationCredentialSecret = ""
+	} else if inspectorACReady {
+		instance.Spec.Ironic.Template.IronicInspector.Auth.ApplicationCredentialSecret = keystonev1.GetACSecretName("ironic-inspector")
+	}
 
 	// Ironic API
 	svcs, err := service.GetServicesListWithLabel(
@@ -228,6 +292,17 @@ func ReconcileIronic(ctx context.Context, instance *corev1beta1.OpenStackControl
 				condition.RequestedReason,
 				condition.SeverityInfo,
 				corev1beta1.OpenStackControlPlaneIronicReadyRunningMessage))
+		}
+	}
+
+	// If service is ready (Day-2) and either AC returned a requeue, honor it now
+	// Otherwise (Day-0/1), ignore AC requeue to allow service bootstrap
+	if ironicReady {
+		if (acResult != ctrl.Result{}) {
+			return acResult, nil
+		}
+		if (inspectorACResult != ctrl.Result{}) {
+			return inspectorACResult, nil
 		}
 	}
 

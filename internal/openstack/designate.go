@@ -11,6 +11,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	designatev1 "github.com/openstack-k8s-operators/designate-operator/api/v1beta1"
+	keystonev1 "github.com/openstack-k8s-operators/keystone-operator/api/v1beta1"
 	corev1beta1 "github.com/openstack-k8s-operators/openstack-operator/api/core/v1beta1"
 	k8s_errors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -71,6 +72,40 @@ func ReconcileDesignate(ctx context.Context, instance *corev1beta1.OpenStackCont
 		if !k8s_errors.IsNotFound(err) {
 			return ctrl.Result{}, err
 		}
+	}
+
+	// Application Credential Management (Day-2 operation)
+	designateReady := designate.Status.ObservedGeneration == designate.Generation && designate.IsReady()
+
+	// Apply same fallback logic as in CreateOrPatch to avoid passing empty values to AC
+	designateSecret := instance.Spec.Designate.Template.Secret
+	if designateSecret == "" {
+		designateSecret = instance.Spec.Secret
+	}
+
+	acReady, acResult, err := EnsureApplicationCredentialForService(
+		ctx,
+		helper,
+		instance,
+		"designate",
+		designateReady,
+		designateSecret,
+		instance.Spec.Designate.Template.PasswordSelectors.Service,
+		instance.Spec.Designate.Template.ServiceUser,
+	)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+
+	// Set or clear ApplicationCredentialSecret
+	// - If AC disabled: use password
+	// - If AC enabled AND ready: use AC
+	// - If AC enabled BUT not ready: leave unchanged to avoid flapping
+	acEnabled := shouldEnableACForService("designate", instance)
+	if !acEnabled {
+		instance.Spec.Designate.Template.DesignateAPI.Auth.ApplicationCredentialSecret = ""
+	} else if acReady {
+		instance.Spec.Designate.Template.DesignateAPI.Auth.ApplicationCredentialSecret = keystonev1.GetACSecretName("designate")
 	}
 
 	svcs, err := service.GetServicesListWithLabel(
@@ -214,6 +249,12 @@ func ReconcileDesignate(ctx context.Context, instance *corev1beta1.OpenStackCont
 				condition.SeverityInfo,
 				corev1beta1.OpenStackControlPlaneDesignateReadyRunningMessage))
 		}
+	}
+
+	// If service is ready (Day-2) and AC returned a requeue, honor it now
+	// Otherwise (Day-0/1), ignore AC requeue to allow service bootstrap
+	if designateReady && (acResult != ctrl.Result{}) {
+		return acResult, nil
 	}
 
 	return ctrl.Result{}, nil

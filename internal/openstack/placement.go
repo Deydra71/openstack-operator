@@ -10,6 +10,7 @@ import (
 
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
+	keystonev1 "github.com/openstack-k8s-operators/keystone-operator/api/v1beta1"
 	corev1beta1 "github.com/openstack-k8s-operators/openstack-operator/api/core/v1beta1"
 	placementv1 "github.com/openstack-k8s-operators/placement-operator/api/v1beta1"
 	k8s_errors "k8s.io/apimachinery/pkg/api/errors"
@@ -68,6 +69,40 @@ func ReconcilePlacementAPI(ctx context.Context, instance *corev1beta1.OpenStackC
 		if !k8s_errors.IsNotFound(err) {
 			return ctrl.Result{}, err
 		}
+	}
+
+	// Application Credential Management (Day-2 operation)
+	placementReady := placementAPI.Status.ObservedGeneration == placementAPI.Generation && placementAPI.IsReady()
+
+	// Apply same fallback logic as in CreateOrPatch to avoid passing empty values to AC
+	placementSecret := instance.Spec.Placement.Template.Secret
+	if placementSecret == "" {
+		placementSecret = instance.Spec.Secret
+	}
+
+	acReady, acResult, err := EnsureApplicationCredentialForService(
+		ctx,
+		helper,
+		instance,
+		"placement",
+		placementReady,
+		placementSecret,
+		instance.Spec.Placement.Template.PasswordSelectors.Service,
+		instance.Spec.Placement.Template.ServiceUser,
+	)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+
+	// Set or clear ApplicationCredentialSecret
+	// - If AC disabled: use password
+	// - If AC enabled AND ready: use AC
+	// - If AC enabled BUT not ready: leave unchanged to avoid flapping
+	acEnabled := shouldEnableACForService("placement", instance)
+	if !acEnabled {
+		instance.Spec.Placement.Template.Auth.ApplicationCredentialSecret = ""
+	} else if acReady {
+		instance.Spec.Placement.Template.Auth.ApplicationCredentialSecret = keystonev1.GetACSecretName("placement")
 	}
 
 	// set CA cert and preserve any previously set TLS certs
@@ -165,6 +200,12 @@ func ReconcilePlacementAPI(ctx context.Context, instance *corev1beta1.OpenStackC
 				condition.SeverityInfo,
 				corev1beta1.OpenStackControlPlanePlacementAPIReadyRunningMessage))
 		}
+	}
+
+	// If service is ready (Day-2) and AC returned a requeue, honor it now
+	// Otherwise (Day-0/1), ignore AC requeue to allow service bootstrap
+	if placementReady && (acResult != ctrl.Result{}) {
+		return acResult, nil
 	}
 
 	return ctrl.Result{}, nil

@@ -12,6 +12,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	barbicanv1 "github.com/openstack-k8s-operators/barbican-operator/api/v1beta1"
+	keystonev1 "github.com/openstack-k8s-operators/keystone-operator/api/v1beta1"
 	corev1beta1 "github.com/openstack-k8s-operators/openstack-operator/api/core/v1beta1"
 	k8s_errors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -59,6 +60,40 @@ func ReconcileBarbican(ctx context.Context, instance *corev1beta1.OpenStackContr
 		if !k8s_errors.IsNotFound(err) {
 			return ctrl.Result{}, err
 		}
+	}
+
+	// Application Credential Management (Day-2 operation)
+	barbicanReady := barbican.Status.ObservedGeneration == barbican.Generation && barbican.IsReady()
+	acEnabled := shouldEnableACForService("barbican", instance)
+
+	// Apply same fallback logic as in CreateOrPatch to avoid passing empty values to AC
+	barbicanSecret := instance.Spec.Barbican.Template.Secret
+	if barbicanSecret == "" {
+		barbicanSecret = instance.Spec.Secret
+	}
+
+	acReady, acResult, err := EnsureApplicationCredentialForService(
+		ctx,
+		helper,
+		instance,
+		"barbican",
+		barbicanReady,
+		barbicanSecret,
+		instance.Spec.Barbican.Template.PasswordSelectors.Service,
+		instance.Spec.Barbican.Template.ServiceUser,
+	)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+
+	// Set or clear ApplicationCredentialSecret
+	// - If AC disabled: use password
+	// - If AC enabled AND ready: use AC
+	// - If AC enabled BUT not ready: leave unchanged to avoid flapping
+	if !acEnabled {
+		instance.Spec.Barbican.Template.Auth.ApplicationCredentialSecret = ""
+	} else if acReady {
+		instance.Spec.Barbican.Template.Auth.ApplicationCredentialSecret = keystonev1.GetACSecretName("barbican")
 	}
 
 	// preserve any previously set TLS certs, set CA cert
@@ -181,6 +216,11 @@ func ReconcileBarbican(ctx context.Context, instance *corev1beta1.OpenStackContr
 				condition.SeverityInfo,
 				corev1beta1.OpenStackControlPlaneBarbicanReadyRunningMessage))
 		}
+	}
+
+	// If service is ready (Day-2) and AC returned a requeue, return the result
+	if barbicanReady && (acResult != ctrl.Result{}) {
+		return acResult, nil
 	}
 
 	return ctrl.Result{}, nil

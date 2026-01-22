@@ -41,7 +41,6 @@ import (
 	cinderv1 "github.com/openstack-k8s-operators/cinder-operator/api/v1beta1"
 	rabbitmqv1 "github.com/openstack-k8s-operators/infra-operator/apis/rabbitmq/v1beta1"
 	topologyv1 "github.com/openstack-k8s-operators/infra-operator/apis/topology/v1beta1"
-	keystonev1 "github.com/openstack-k8s-operators/keystone-operator/api/v1beta1"
 
 	"github.com/openstack-k8s-operators/lib-common/modules/certmanager"
 	"github.com/openstack-k8s-operators/lib-common/modules/common/condition"
@@ -3149,52 +3148,6 @@ var _ = Describe("OpenStackOperator Webhook", func() {
 		OSCtlplane := GetOpenStackControlPlane(types.NamespacedName{Name: "openstack", Namespace: namespace})
 		Expect(OSCtlplane.Labels).Should(Not(BeNil()))
 		Expect(OSCtlplane.Labels).Should(HaveKeyWithValue("core.openstack.org/openstackcontrolplane", "foo"))
-	})
-
-	It("Defaults Auth.ApplicationCredentialSecret for Cinder via webhook", func() {
-		spec := GetDefaultOpenStackControlPlaneSpec()
-		spec["cinder"] = map[string]interface{}{
-			"enabled": true,
-			"template": map[string]interface{}{
-				"cinderAPI": map[string]interface{}{
-					"replicas": 1,
-				},
-			},
-		}
-		DeferCleanup(th.DeleteInstance, CreateOpenStackControlPlane(names.OpenStackControlplaneName, spec))
-
-		OSCtlplane := GetOpenStackControlPlane(names.OpenStackControlplaneName)
-		Expect(OSCtlplane.Spec.Cinder.Template.CinderAPI.Auth.ApplicationCredentialSecret).Should(Equal(
-			keystonev1.GetACSecretName("cinder"),
-		))
-	})
-
-	It("Preserves custom Auth.ApplicationCredentialSecret for Glance", func() {
-		spec := GetDefaultOpenStackControlPlaneSpec()
-		spec["glance"] = map[string]interface{}{
-			"enabled": true,
-			"template": map[string]interface{}{
-				"storage": map[string]interface{}{
-					"storageClass":   "local-storage",
-					"storageRequest": "10G",
-				},
-				"glanceAPIs": map[string]interface{}{
-					"default": map[string]interface{}{
-						"replicas": 1,
-						"type":     "single",
-						"auth": map[string]interface{}{
-							"applicationCredentialSecret": "my-custom-glance-secret",
-						},
-					},
-				},
-			},
-		}
-		DeferCleanup(th.DeleteInstance, CreateOpenStackControlPlane(names.OpenStackControlplaneName, spec))
-
-		OSCtlplane := GetOpenStackControlPlane(names.OpenStackControlplaneName)
-		Expect(OSCtlplane.Spec.Glance.Template.GlanceAPIs["default"].Auth.ApplicationCredentialSecret).Should(Equal(
-			"my-custom-glance-secret",
-		))
 	})
 
 	It("calls placement validation webhook", func() {

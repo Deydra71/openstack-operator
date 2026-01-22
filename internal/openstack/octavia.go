@@ -30,6 +30,7 @@ import (
 
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
+	keystonev1 "github.com/openstack-k8s-operators/keystone-operator/api/v1beta1"
 	octaviav1 "github.com/openstack-k8s-operators/octavia-operator/api/v1beta1"
 	corev1beta1 "github.com/openstack-k8s-operators/openstack-operator/api/core/v1beta1"
 	k8s_errors "k8s.io/apimachinery/pkg/api/errors"
@@ -137,6 +138,40 @@ func ReconcileOctavia(ctx context.Context, instance *corev1beta1.OpenStackContro
 		if !k8s_errors.IsNotFound(err) {
 			return ctrl.Result{}, err
 		}
+	}
+
+	// Application Credential Management (Day-2 operation)
+	octaviaReady := octavia.Status.ObservedGeneration == octavia.Generation && octavia.IsReady()
+
+	// Apply same fallback logic as in CreateOrPatch to avoid passing empty values to AC
+	octaviaSecret := instance.Spec.Octavia.Template.Secret
+	if octaviaSecret == "" {
+		octaviaSecret = instance.Spec.Secret
+	}
+
+	acReady, acResult, err := EnsureApplicationCredentialForService(
+		ctx,
+		helper,
+		instance,
+		"octavia",
+		octaviaReady,
+		octaviaSecret,
+		instance.Spec.Octavia.Template.PasswordSelectors.Service,
+		instance.Spec.Octavia.Template.ServiceUser,
+	)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+
+	// Set or clear ApplicationCredentialSecret
+	// - If AC disabled: use password
+	// - If AC enabled AND ready: use AC
+	// - If AC enabled BUT not ready: leave unchanged to avoid flapping
+	acEnabled := shouldEnableACForService("octavia", instance)
+	if !acEnabled {
+		instance.Spec.Octavia.Template.OctaviaAPI.Auth.ApplicationCredentialSecret = ""
+	} else if acReady {
+		instance.Spec.Octavia.Template.OctaviaAPI.Auth.ApplicationCredentialSecret = keystonev1.GetACSecretName("octavia")
 	}
 
 	svcs, err := service.GetServicesListWithLabel(
@@ -249,6 +284,12 @@ func ReconcileOctavia(ctx context.Context, instance *corev1beta1.OpenStackContro
 				condition.SeverityInfo,
 				corev1beta1.OpenStackControlPlaneOctaviaReadyRunningMessage))
 		}
+	}
+
+	// If service is ready (Day-2) and AC returned a requeue, honor it now
+	// Otherwise (Day-0/1), ignore AC requeue to allow service bootstrap
+	if octaviaReady && (acResult != ctrl.Result{}) {
+		return acResult, nil
 	}
 
 	return ctrl.Result{}, nil
