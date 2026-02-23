@@ -109,8 +109,8 @@ func ReconcileSwift(ctx context.Context, instance *corev1beta1.OpenStackControlP
 		swiftSecret = instance.Spec.Secret
 	}
 
-	// Only call if AC enabled or currently configured
-	if isACEnabled(instance.Spec.ApplicationCredential, instance.Spec.Swift.ApplicationCredential) ||
+	// Reconcile AC if configured (enabled or disabled) or secret previously set
+	if instance.Spec.Swift.ApplicationCredential != nil ||
 		instance.Spec.Swift.Template.SwiftProxy.Auth.ApplicationCredentialSecret != "" {
 
 		acSecretName, acResult, err := EnsureApplicationCredentialForService(

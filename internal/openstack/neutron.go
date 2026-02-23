@@ -119,8 +119,8 @@ func ReconcileNeutron(ctx context.Context, instance *corev1beta1.OpenStackContro
 		neutronSecret = instance.Spec.Secret
 	}
 
-	// Only call if AC enabled or currently configured
-	if isACEnabled(instance.Spec.ApplicationCredential, instance.Spec.Neutron.ApplicationCredential) ||
+	// Reconcile AC if configured (enabled or disabled) or secret previously set
+	if instance.Spec.Neutron.ApplicationCredential != nil ||
 		instance.Spec.Neutron.Template.Auth.ApplicationCredentialSecret != "" {
 
 		acSecretName, acResult, err := EnsureApplicationCredentialForService(

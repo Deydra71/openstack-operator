@@ -79,8 +79,8 @@ func ReconcilePlacementAPI(ctx context.Context, instance *corev1beta1.OpenStackC
 		placementSecret = instance.Spec.Secret
 	}
 
-	// Only call if AC enabled or currently configured
-	if isACEnabled(instance.Spec.ApplicationCredential, instance.Spec.Placement.ApplicationCredential) ||
+	// Reconcile AC if configured (enabled or disabled) or secret previously set
+	if instance.Spec.Placement.ApplicationCredential != nil ||
 		instance.Spec.Placement.Template.Auth.ApplicationCredentialSecret != "" {
 
 		acSecretName, acResult, err := EnsureApplicationCredentialForService(

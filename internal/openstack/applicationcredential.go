@@ -125,6 +125,11 @@ func EnsureApplicationCredentialForService(
 
 	// Check if AC CR exists and is ready
 	if acExists {
+		// We want to run reconcileApplicationCredential to update the AC CR if it exists and is ready and AC config fields changed
+		err = reconcileApplicationCredential(ctx, helper, instance, acName, serviceUser, secretName, passwordSelector, merged)
+		if err != nil {
+			return "", ctrl.Result{}, err
+		}
 		if acCR.IsReady() {
 			Log.Info("Application Credential is ready", "service", serviceName, "acName", acName, "secretName", acCR.Status.SecretName)
 			return acCR.Status.SecretName, ctrl.Result{}, nil

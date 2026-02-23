@@ -128,9 +128,8 @@ func ReconcileGlance(ctx context.Context, instance *corev1beta1.OpenStackControl
 		}
 	}
 
-	// Only call if AC enabled or currently configured
-	if isACEnabled(instance.Spec.ApplicationCredential, instance.Spec.Glance.ApplicationCredential) || hasACConfigured {
-
+	// Reconcile AC if configured (enabled or disabled) or secret previously set
+	if instance.Spec.Glance.ApplicationCredential != nil || hasACConfigured {
 		acSecretName, acResult, err := EnsureApplicationCredentialForService(
 			ctx,
 			helper,

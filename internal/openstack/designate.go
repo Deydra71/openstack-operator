@@ -85,8 +85,8 @@ func ReconcileDesignate(ctx context.Context, instance *corev1beta1.OpenStackCont
 		designateSecret = instance.Spec.Secret
 	}
 
-	// Only call if AC enabled or currently configured
-	if isACEnabled(instance.Spec.ApplicationCredential, instance.Spec.Designate.ApplicationCredential) ||
+	// Reconcile AC if configured (enabled or disabled) or secret previously set
+	if instance.Spec.Designate.ApplicationCredential != nil ||
 		instance.Spec.Designate.Template.DesignateAPI.Auth.ApplicationCredentialSecret != "" {
 
 		acSecretName, acResult, err := EnsureApplicationCredentialForService(

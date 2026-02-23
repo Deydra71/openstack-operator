@@ -75,8 +75,8 @@ func ReconcileManila(ctx context.Context, instance *corev1beta1.OpenStackControl
 		manilaSecret = instance.Spec.Secret
 	}
 
-	// Only call if AC enabled or currently configured
-	if isACEnabled(instance.Spec.ApplicationCredential, instance.Spec.Manila.ApplicationCredential) ||
+	// Reconcile AC if configured (enabled or disabled) or secret previously set
+	if instance.Spec.Manila.ApplicationCredential != nil ||
 		instance.Spec.Manila.Template.Auth.ApplicationCredentialSecret != "" {
 
 		acSecretName, acResult, err := EnsureApplicationCredentialForService(

@@ -191,8 +191,8 @@ func ReconcileNova(ctx context.Context, instance *corev1beta1.OpenStackControlPl
 		novaSecret = instance.Spec.Secret
 	}
 
-	// Only call if AC enabled or currently configured
-	if isACEnabled(instance.Spec.ApplicationCredential, instance.Spec.Nova.ApplicationCredential) ||
+	// Reconcile AC if configured (enabled or disabled) or secret previously set
+	if instance.Spec.Nova.ApplicationCredential != nil ||
 		instance.Spec.Nova.Template.Auth.ApplicationCredentialSecret != "" {
 
 		acSecretName, acResult, err := EnsureApplicationCredentialForService(
