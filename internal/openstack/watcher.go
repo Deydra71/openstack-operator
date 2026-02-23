@@ -116,6 +116,12 @@ func ReconcileWatcher(ctx context.Context, instance *corev1beta1.OpenStackContro
 		// - If AC disabled: returns ""
 		// - If AC enabled and ready: returns the AC secret name
 		instance.Spec.Watcher.Template.Auth.ApplicationCredentialSecret = acSecretName
+	} else {
+		// AC disabled - clean up any AC CR
+		if err := CleanupApplicationCredential(ctx, helper, instance, "watcher"); err != nil {
+			return ctrl.Result{}, err
+		}
+		instance.Spec.Watcher.Template.Auth.ApplicationCredentialSecret = ""
 	}
 
 	// preserve any previously set TLS certs, set CA cert

@@ -161,9 +161,18 @@ func ReconcileTelemetry(ctx context.Context, instance *corev1beta1.OpenStackCont
 			// - If AC disabled: returns ""
 			// - If AC enabled and ready: returns the AC secret name
 			instance.Spec.Telemetry.Template.Autoscaling.Aodh.Auth.ApplicationCredentialSecret = aodhACSecretName
+		} else {
+			// AC disabled - clean up any AC CR
+			if err := CleanupApplicationCredential(ctx, helper, instance, "aodh"); err != nil {
+				return ctrl.Result{}, err
+			}
+			instance.Spec.Telemetry.Template.Autoscaling.Aodh.Auth.ApplicationCredentialSecret = ""
 		}
 	} else {
 		// Aodh service disabled, clear the field
+		if err := CleanupApplicationCredential(ctx, helper, instance, "aodh"); err != nil {
+			return ctrl.Result{}, err
+		}
 		instance.Spec.Telemetry.Template.Autoscaling.Aodh.Auth.ApplicationCredentialSecret = ""
 	}
 
@@ -203,9 +212,18 @@ func ReconcileTelemetry(ctx context.Context, instance *corev1beta1.OpenStackCont
 			// - If AC disabled: returns ""
 			// - If AC enabled and ready: returns the AC secret name
 			instance.Spec.Telemetry.Template.Ceilometer.Auth.ApplicationCredentialSecret = ceilometerACSecretName
+		} else {
+			// AC disabled - clean up any AC CR
+			if err := CleanupApplicationCredential(ctx, helper, instance, "ceilometer"); err != nil {
+				return ctrl.Result{}, err
+			}
+			instance.Spec.Telemetry.Template.Ceilometer.Auth.ApplicationCredentialSecret = ""
 		}
 	} else {
 		// Ceilometer service disabled, clear the field
+		if err := CleanupApplicationCredential(ctx, helper, instance, "ceilometer"); err != nil {
+			return ctrl.Result{}, err
+		}
 		instance.Spec.Telemetry.Template.Ceilometer.Auth.ApplicationCredentialSecret = ""
 	}
 
@@ -245,9 +263,18 @@ func ReconcileTelemetry(ctx context.Context, instance *corev1beta1.OpenStackCont
 			// - If AC disabled: returns ""
 			// - If AC enabled and ready: returns the AC secret name
 			instance.Spec.Telemetry.Template.CloudKitty.Auth.ApplicationCredentialSecret = cloudkittyACSecretName
+		} else {
+			// AC disabled - clean up any AC CR
+			if err := CleanupApplicationCredential(ctx, helper, instance, "cloudkitty"); err != nil {
+				return ctrl.Result{}, err
+			}
+			instance.Spec.Telemetry.Template.CloudKitty.Auth.ApplicationCredentialSecret = ""
 		}
 	} else {
 		// CloudKitty service disabled, clear the field
+		if err := CleanupApplicationCredential(ctx, helper, instance, "cloudkitty"); err != nil {
+			return ctrl.Result{}, err
+		}
 		instance.Spec.Telemetry.Template.CloudKitty.Auth.ApplicationCredentialSecret = ""
 	}
 

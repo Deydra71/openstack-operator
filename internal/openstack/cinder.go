@@ -124,6 +124,12 @@ func ReconcileCinder(ctx context.Context, instance *corev1beta1.OpenStackControl
 		// - If AC disabled: returns ""
 		// - If AC enabled and ready: returns the AC secret name
 		instance.Spec.Cinder.Template.Auth.ApplicationCredentialSecret = acSecretName
+	} else {
+		// AC disabled - clean up any AC CR
+		if err := CleanupApplicationCredential(ctx, helper, instance, "cinder"); err != nil {
+			return ctrl.Result{}, err
+		}
+		instance.Spec.Cinder.Template.Auth.ApplicationCredentialSecret = ""
 	}
 
 	// preserve any previously set TLS certs,set CA cert

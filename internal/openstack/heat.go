@@ -144,6 +144,12 @@ func ReconcileHeat(ctx context.Context, instance *corev1beta1.OpenStackControlPl
 		// - If AC disabled: returns ""
 		// - If AC enabled and ready: returns the AC secret name
 		instance.Spec.Heat.Template.Auth.ApplicationCredentialSecret = heatACSecretName
+	} else {
+		// AC disabled - clean up any AC CR
+		if err := CleanupApplicationCredential(ctx, helper, instance, "heat"); err != nil {
+			return ctrl.Result{}, err
+		}
+		instance.Spec.Heat.Template.Auth.ApplicationCredentialSecret = ""
 	}
 
 	// Heat API

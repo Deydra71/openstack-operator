@@ -219,6 +219,12 @@ func ReconcileNova(ctx context.Context, instance *corev1beta1.OpenStackControlPl
 		// - If AC disabled: returns ""
 		// - If AC enabled and ready: returns the AC secret name
 		instance.Spec.Nova.Template.Auth.ApplicationCredentialSecret = acSecretName
+	} else {
+		// AC disabled - clean up any AC CR
+		if err := CleanupApplicationCredential(ctx, helper, instance, "nova"); err != nil {
+			return ctrl.Result{}, err
+		}
+		instance.Spec.Nova.Template.Auth.ApplicationCredentialSecret = ""
 	}
 
 	// Nova API

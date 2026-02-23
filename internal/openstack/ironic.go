@@ -180,6 +180,16 @@ func ReconcileIronic(ctx context.Context, instance *corev1beta1.OpenStackControl
 		// - If AC disabled: returns ""
 		// - If AC enabled and ready: returns the AC secret name
 		instance.Spec.Ironic.Template.IronicInspector.Auth.ApplicationCredentialSecret = inspectorACSecretName
+	} else {
+		// AC disabled - clean up any AC CRs
+		if err := CleanupApplicationCredential(ctx, helper, instance, "ironic"); err != nil {
+			return ctrl.Result{}, err
+		}
+		if err := CleanupApplicationCredential(ctx, helper, instance, "ironic-inspector"); err != nil {
+			return ctrl.Result{}, err
+		}
+		instance.Spec.Ironic.Template.Auth.ApplicationCredentialSecret = ""
+		instance.Spec.Ironic.Template.IronicInspector.Auth.ApplicationCredentialSecret = ""
 	}
 
 	// Ironic API

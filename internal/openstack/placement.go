@@ -107,6 +107,12 @@ func ReconcilePlacementAPI(ctx context.Context, instance *corev1beta1.OpenStackC
 		// - If AC disabled: returns ""
 		// - If AC enabled and ready: returns the AC secret name
 		instance.Spec.Placement.Template.Auth.ApplicationCredentialSecret = acSecretName
+	} else {
+		// AC disabled - clean up any AC CR
+		if err := CleanupApplicationCredential(ctx, helper, instance, "placement"); err != nil {
+			return ctrl.Result{}, err
+		}
+		instance.Spec.Placement.Template.Auth.ApplicationCredentialSecret = ""
 	}
 
 	// set CA cert and preserve any previously set TLS certs

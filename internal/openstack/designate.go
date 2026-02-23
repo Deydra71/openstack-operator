@@ -113,6 +113,12 @@ func ReconcileDesignate(ctx context.Context, instance *corev1beta1.OpenStackCont
 		// - If AC disabled: returns ""
 		// - If AC enabled and ready: returns the AC secret name
 		instance.Spec.Designate.Template.DesignateAPI.Auth.ApplicationCredentialSecret = acSecretName
+	} else {
+		// AC disabled - clean up any AC CR
+		if err := CleanupApplicationCredential(ctx, helper, instance, "designate"); err != nil {
+			return ctrl.Result{}, err
+		}
+		instance.Spec.Designate.Template.DesignateAPI.Auth.ApplicationCredentialSecret = ""
 	}
 
 	svcs, err := service.GetServicesListWithLabel(
