@@ -167,8 +167,8 @@ func ReconcileOctavia(ctx context.Context, instance *corev1beta1.OpenStackContro
 		octaviaSecret = instance.Spec.Secret
 	}
 
-	// Only call if AC enabled or currently configured
-	if isACEnabled(instance.Spec.ApplicationCredential, instance.Spec.Octavia.ApplicationCredential) ||
+	// Reconcile AC if configured (enabled or disabled) or secret previously set
+	if instance.Spec.Octavia.ApplicationCredential != nil ||
 		instance.Spec.Octavia.Template.Auth.ApplicationCredentialSecret != "" {
 
 		acSecretName, acResult, err := EnsureApplicationCredentialForService(
@@ -195,12 +195,6 @@ func ReconcileOctavia(ctx context.Context, instance *corev1beta1.OpenStackContro
 		// - If AC disabled: returns ""
 		// - If AC enabled and ready: returns the AC secret name
 		instance.Spec.Octavia.Template.Auth.ApplicationCredentialSecret = acSecretName
-	} else {
-		// AC disabled - clean up any AC CR
-		if err := CleanupApplicationCredential(ctx, helper, instance, "octavia"); err != nil {
-			return ctrl.Result{}, err
-		}
-		instance.Spec.Octavia.Template.Auth.ApplicationCredentialSecret = ""
 	}
 
 	svcs, err := service.GetServicesListWithLabel(

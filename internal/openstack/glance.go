@@ -128,8 +128,8 @@ func ReconcileGlance(ctx context.Context, instance *corev1beta1.OpenStackControl
 		}
 	}
 
-	// Only call if AC enabled or currently configured
-	if isACEnabled(instance.Spec.ApplicationCredential, instance.Spec.Glance.ApplicationCredential) || hasACConfigured {
+	// Reconcile AC if configured (enabled or disabled) or secret previously set
+	if instance.Spec.Glance.ApplicationCredential != nil || hasACConfigured {
 		acSecretName, acResult, err := EnsureApplicationCredentialForService(
 			ctx,
 			helper,
@@ -155,15 +155,6 @@ func ReconcileGlance(ctx context.Context, instance *corev1beta1.OpenStackControl
 		// - If AC enabled and ready: returns the AC secret name
 		for name, glanceAPI := range instance.Spec.Glance.Template.GlanceAPIs {
 			glanceAPI.Auth.ApplicationCredentialSecret = acSecretName
-			instance.Spec.Glance.Template.GlanceAPIs[name] = glanceAPI
-		}
-	} else {
-		// AC disabled - clean up any AC CR
-		if err := CleanupApplicationCredential(ctx, helper, instance, "glance"); err != nil {
-			return ctrl.Result{}, err
-		}
-		for name, glanceAPI := range instance.Spec.Glance.Template.GlanceAPIs {
-			glanceAPI.Auth.ApplicationCredentialSecret = ""
 			instance.Spec.Glance.Template.GlanceAPIs[name] = glanceAPI
 		}
 	}

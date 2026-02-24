@@ -124,8 +124,8 @@ func ReconcileIronic(ctx context.Context, instance *corev1beta1.OpenStackControl
 		ironicSecret = instance.Spec.Secret
 	}
 
-	// Only call if AC enabled or currently configured
-	if isACEnabled(instance.Spec.ApplicationCredential, instance.Spec.Ironic.ApplicationCredential) ||
+	// Reconcile AC if configured (enabled or disabled) or secret previously set
+	if instance.Spec.Ironic.ApplicationCredential != nil ||
 		instance.Spec.Ironic.Template.Auth.ApplicationCredentialSecret != "" ||
 		instance.Spec.Ironic.Template.IronicInspector.Auth.ApplicationCredentialSecret != "" {
 
@@ -145,7 +145,6 @@ func ReconcileIronic(ctx context.Context, instance *corev1beta1.OpenStackControl
 			return ctrl.Result{}, err
 		}
 
-		// If AC is not ready, return immediately without updating the service CR
 		if (acResult != ctrl.Result{}) {
 			return acResult, nil
 		}
@@ -162,7 +161,7 @@ func ReconcileIronic(ctx context.Context, instance *corev1beta1.OpenStackControl
 			instance,
 			"ironic-inspector",
 			ironicReady,
-			ironicSecret, // Inspector shares the same secret as ironic
+			ironicSecret,
 			instance.Spec.Ironic.Template.IronicInspector.PasswordSelectors.Service,
 			instance.Spec.Ironic.Template.IronicInspector.ServiceUser,
 			instance.Spec.Ironic.ApplicationCredential,
@@ -171,7 +170,6 @@ func ReconcileIronic(ctx context.Context, instance *corev1beta1.OpenStackControl
 			return ctrl.Result{}, err
 		}
 
-		// If AC is not ready, return immediately without updating the service CR
 		if (inspectorACResult != ctrl.Result{}) {
 			return inspectorACResult, nil
 		}
@@ -180,16 +178,6 @@ func ReconcileIronic(ctx context.Context, instance *corev1beta1.OpenStackControl
 		// - If AC disabled: returns ""
 		// - If AC enabled and ready: returns the AC secret name
 		instance.Spec.Ironic.Template.IronicInspector.Auth.ApplicationCredentialSecret = inspectorACSecretName
-	} else {
-		// AC disabled - clean up any AC CRs
-		if err := CleanupApplicationCredential(ctx, helper, instance, "ironic"); err != nil {
-			return ctrl.Result{}, err
-		}
-		if err := CleanupApplicationCredential(ctx, helper, instance, "ironic-inspector"); err != nil {
-			return ctrl.Result{}, err
-		}
-		instance.Spec.Ironic.Template.Auth.ApplicationCredentialSecret = ""
-		instance.Spec.Ironic.Template.IronicInspector.Auth.ApplicationCredentialSecret = ""
 	}
 
 	// Ironic API
