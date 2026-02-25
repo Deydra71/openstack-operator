@@ -1,3 +1,4 @@
+github.com/Deydra71/neutron-operator/api v0.0.0-20260225105713-a27614536243 h1:J+wAC1lGErKdRZTav0cybo9qsW+ZAYHWoqwbKDZjyh8=
 github.com/Masterminds/semver/v3 v3.4.0 h1:Zog+i5UMtVoCU8oKka5P7i9q9HgrJeGzI9SA1Xbatp0=
 github.com/Masterminds/semver/v3 v3.4.0/go.mod h1:4V+yj/TJE1HU9XfppCwVMZq3I84lprf4nC11bSS5beM=
 github.com/antlr4-go/antlr/v4 v4.13.0 h1:lxCg3LAv+EUK6t1i0y1V6/SLeUi0eKEKdhQAlS8TVTI=
@@ -172,8 +173,6 @@ github.com/openstack-k8s-operators/manila-operator/api v0.6.1-0.20260214081334-8
 github.com/openstack-k8s-operators/manila-operator/api v0.6.1-0.20260214081334-8a8c2b21bb84/go.mod h1:jxZ5NdCT6rZdrfUVDDZDLmQxYcNBEwjuT+wivZSqerY=
 github.com/openstack-k8s-operators/mariadb-operator/api v0.6.1-0.20260212144335-e804f5700fea h1:DKM4Go+yFATWkODprXImZOquMBiGegnSIvAfhu7mVWg=
 github.com/openstack-k8s-operators/mariadb-operator/api v0.6.1-0.20260212144335-e804f5700fea/go.mod h1:dAC9Uj2p6iXzPf5y6yWY4Mza6q64kwKt/hV26PSfG20=
-github.com/openstack-k8s-operators/neutron-operator/api v0.6.1-0.20260217081532-978532b96bc7 h1:9wwv16q23Ya+utzn09WVD/tHo5EM7F4LA4IRNe2mYB0=
-github.com/openstack-k8s-operators/neutron-operator/api v0.6.1-0.20260217081532-978532b96bc7/go.mod h1:wppdogZcqFpqePqElJji7k4gFEMYZvfFvS0qRttHN58=
 github.com/openstack-k8s-operators/nova-operator/api v0.6.1-0.20260212104813-4ae0be03c9f8 h1:m7dVgGMrBF9F55MIRaButHedbBIxvnx0ffAGVpK9ims=
 github.com/openstack-k8s-operators/nova-operator/api v0.6.1-0.20260212104813-4ae0be03c9f8/go.mod h1:pX1Ht6fzob3F6Lhl3MV9MAJquWrosle62VXFsNyNmVU=
 github.com/openstack-k8s-operators/octavia-operator/api v0.6.1-0.20260216094150-c80a216ba012 h1:FW1P/O6+c147w9acRXEFHNG2zTN3GO3J6vyM19oU9iA=

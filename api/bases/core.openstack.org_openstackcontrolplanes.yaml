@@ -10515,6 +10515,21 @@ spec:
                             default: NeutronPassword
                             type: string
                         type: object
+                      podAnnotations:
+                        items:
+                          properties:
+                            name:
+                              type: string
+                            value:
+                              type: string
+                          required:
+                          - name
+                          - value
+                          type: object
+                        type: array
+                        x-kubernetes-list-map-keys:
+                        - name
+                        x-kubernetes-list-type: map
                       preserveJobs:
                         default: false
                         type: boolean
