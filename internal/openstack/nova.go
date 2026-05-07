@@ -62,8 +62,10 @@ func ReconcileNova(ctx context.Context, instance *corev1beta1.OpenStackControlPl
 		instance.Status.ContainerImages.NovaNovncImage = nil
 		instance.Status.ContainerImages.NovaSchedulerImage = nil
 		// Clean up AC CRs when service is disabled
-		if err := CleanupApplicationCredentialForService(ctx, helper, instance, nova.Name); err != nil {
+		if result, err := CleanupApplicationCredentialForService(ctx, helper, instance, nova.Name); err != nil {
 			return ctrl.Result{}, err
+		} else if (result != ctrl.Result{}) {
+			return result, nil
 		}
 		return ctrl.Result{}, nil
 	}
@@ -214,15 +216,15 @@ func ReconcileNova(ctx context.Context, instance *corev1beta1.OpenStackControlPl
 			return ctrl.Result{}, err
 		}
 
-		// If AC is not ready, return immediately without updating the service CR
-		if (acResult != ctrl.Result{}) {
+		// We only propagate the AC secret when it's actually ready (non-empty).
+		// This avoids overwriting an existing value while the AC CR is still
+		// being created.
+		if acSecretName != "" {
+			instance.Spec.Nova.Template.Auth.ApplicationCredentialSecret = acSecretName
+		}
+		if acSecretName == "" && (acResult != ctrl.Result{}) {
 			return acResult, nil
 		}
-
-		// Set ApplicationCredentialSecret based on what the helper returned:
-		// - If AC disabled: returns ""
-		// - If AC enabled and ready: returns the AC secret name
-		instance.Spec.Nova.Template.Auth.ApplicationCredentialSecret = acSecretName
 	}
 
 	// Nova API
