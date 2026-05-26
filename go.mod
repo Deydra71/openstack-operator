@@ -18,7 +18,7 @@ require (
 	github.com/openstack-k8s-operators/glance-operator/api v0.6.1-0.20260518162544-ee3217cda014
 	github.com/openstack-k8s-operators/heat-operator/api v0.6.1-0.20260520055255-88f3a3ee062f
 	github.com/openstack-k8s-operators/horizon-operator/api v0.6.1-0.20260519055836-98aca178b9cd
-	github.com/openstack-k8s-operators/infra-operator/apis v0.6.1-0.20260518151731-513cdc50e41c
+	github.com/openstack-k8s-operators/infra-operator/apis v0.6.1-0.20260521141938-b817d49cac5c
 	github.com/openstack-k8s-operators/ironic-operator/api v0.6.1-0.20260519055835-3fc462342d6c
 	github.com/openstack-k8s-operators/keystone-operator/api v0.6.1-0.20260520090027-4d7b7a01c0bf
 	github.com/openstack-k8s-operators/lib-common/modules/ansible v0.6.1-0.20260518125357-72bdd580c587
@@ -175,3 +175,29 @@ replace k8s.io/code-generator => k8s.io/code-generator v0.31.14 //allow-merging
 replace k8s.io/component-base => k8s.io/component-base v0.31.14 //allow-merging
 
 replace github.com/cert-manager/cmctl/v2 => github.com/cert-manager/cmctl/v2 v2.1.2-0.20241127223932-88edb96860cf //allow-merging
+
+replace github.com/openstack-k8s-operators/barbican-operator/api => github.com/Deydra71/barbican-operator/api v0.0.0-20260525065648-45b421b3c25a
+
+replace github.com/openstack-k8s-operators/cinder-operator/api => github.com/Deydra71/cinder-operator/api v0.0.0-20260525094721-19acf370f3dc
+
+replace github.com/openstack-k8s-operators/swift-operator/api => github.com/Deydra71/swift-operator/api v0.0.0-20260525095608-76eb56d051f0
+
+replace github.com/openstack-k8s-operators/glance-operator/api => github.com/Deydra71/glance-operator/api v0.0.0-20260525095327-1c266b2eee27
+
+replace github.com/openstack-k8s-operators/manila-operator/api => github.com/Deydra71/manila-operator/api v0.0.0-20260525095732-771853ae9825
+
+replace github.com/openstack-k8s-operators/octavia-operator/api => github.com/Deydra71/octavia-operator/api v0.0.0-20260525100054-ca46aac27432
+
+replace github.com/openstack-k8s-operators/neutron-operator/api => github.com/Deydra71/neutron-operator/api v0.0.0-20260525105159-7b63bb81dca8
+
+replace github.com/openstack-k8s-operators/heat-operator/api => github.com/Deydra71/heat-operator/api v0.0.0-20260525113805-422f1b976e05
+
+replace github.com/openstack-k8s-operators/designate-operator/api => github.com/Deydra71/designate-operator/api v0.0.0-20260525103622-39c115288ed1
+
+replace github.com/openstack-k8s-operators/watcher-operator/api => github.com/Deydra71/watcher-operator/api v0.0.0-20260525110152-3f989d262f75
+
+replace github.com/openstack-k8s-operators/telemetry-operator/api => github.com/Deydra71/telemetry-operator/api v0.0.0-20260525125959-c15acc9a3024
+
+replace github.com/openstack-k8s-operators/ironic-operator/api => github.com/Deydra71/ironic-operator/api v0.0.0-20260525124904-bcf30e960acf
+
+replace github.com/openstack-k8s-operators/nova-operator/api => github.com/Deydra71/nova-operator/api v0.0.0-20260525131143-256acfde82dd
